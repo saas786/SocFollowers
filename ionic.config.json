@@ -1,0 +1,7 @@
+{
+  "name": "SocFollowers",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "vue"
+}

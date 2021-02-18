@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "1004563069814",
+    "project_id": "socfollowers",
+    "storage_bucket": "socfollowers.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1004563069814:android:59e20179c136e13974d857",
+        "android_client_info": {
+          "package_name": "com.laravelka.socfollowers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1004563069814-vsjtc6jq84qj9ejr3eij9atga687kh8j.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBLP-Flxr0B9k2gDYyvGaIDUavXumfctyE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1004563069814-vsjtc6jq84qj9ejr3eij9atga687kh8j.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
