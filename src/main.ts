@@ -57,12 +57,14 @@ app.directive('up-first-letter', {
 	}
 });
 
-const { Device, AdMob, FCMPlugin } = Plugins;
+const { Device, AdMob, Geolocation } = Plugins;
 
 router.isReady().then(async() => {
-	FCMPlugin.setAutoInit({ enabled: true }).then(() => console.log(`Auto init enabled`));
+	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');// 'ca-app-pub-7650228313887885/4950127471');
+	
+	const coordinates = await Geolocation.getCurrentPosition();
 
-	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');
+	console.log('Coordinates:', JSON.stringify(coordinates));
 
 	const info = await Device.getInfo();
 	const lang = await Device.getLanguageCode();
@@ -77,10 +79,33 @@ router.isReady().then(async() => {
 		localStorage.setItem('user', JSON.stringify(data.user));
 
 		axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+		
+		axios.post('user/setGeolocation', coordinates).then(response => {
+			const { data } = response;
 
+			console.log('Success setAddress:', JSON.stringify(data));
+		}).catch((error: any) => {
+			console.error('Error setAddress:', JSON.stringify(error));
+		});
 		app.mount('#app');
 	}).catch(() => {
 		app.mount('#app');
+	});
+
+	axios.interceptors.response.use(function (response) {
+		return response;
+	}, function (error) {
+		const { response } = error;
+		
+		console.log(response.statusText);
+
+		if (response.statusText == 'Network error') {
+			router.replace({name: 'Error', params: {
+				code: response.statusText,
+				message: 'Check your internet connection'
+			}});
+		}
+		return Promise.reject(error);
 	});
 	defineCustomElements(window);
 });
