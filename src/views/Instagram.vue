@@ -14,12 +14,26 @@
 </template>
 
 <script lang="ts">
-	import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+	import {
+		IonPage,
+		IonHeader,
+		IonToolbar,
+		IonTitle,
+		IonContent
+	} from '@ionic/vue';
 	import MakeOrder from '@/components/MakeOrder.vue';
 	import Header from '@/components/Header.vue';
 
 	export default  {
 		name: 'Instagram',
-		components: { Header, MakeOrder, IonPage, IonHeader, IonToolbar, IonTitle, IonContent },
+		components: {
+			Header,
+			MakeOrder,
+			IonPage,
+			IonHeader,
+			IonToolbar,
+			IonTitle,
+			IonContent
+		},
 	}
 </script>
