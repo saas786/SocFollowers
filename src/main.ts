@@ -62,48 +62,63 @@ const { Device, AdMob, Geolocation } = Plugins;
 router.isReady().then(async() => {
 	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');// 'ca-app-pub-7650228313887885/4950127471');
 	
-	const coordinates = await Geolocation.getCurrentPosition();
-
-	console.log('Coordinates:', JSON.stringify(coordinates));
+	const position = await Geolocation.getCurrentPosition();
 
 	const info = await Device.getInfo();
 	const lang = await Device.getLanguageCode();
 
-	axios.post('sanctum/registerOrLogin', {
-		'device_id': info.uuid,
-	}).then(response => {
-		const { data } = response;
-		
-		data.user.lang = lang.value;
+	const token = localStorage.getItem('token');
 
-		localStorage.setItem('user', JSON.stringify(data.user));
+	if (token) {
+		axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 
-		axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-		
-		axios.post('user/setGeolocation', coordinates).then(response => {
-			const { data } = response;
-
-			console.log('Success setAddress:', JSON.stringify(data));
-		}).catch((error: any) => {
-			console.error('Error setAddress:', JSON.stringify(error));
+		axios.post('user/setGeolocation', position).catch((error: any) => {
+			console.error('Error set geolocation', error);
 		});
 		app.mount('#app');
-	}).catch(() => {
-		app.mount('#app');
-	});
+	} else {
+		axios.post('sanctum/registerOrLogin', {
+			'device_id': info.uuid,
+		}).then(async(response: any) => {
+			const { data } = response;
+			
+			data.user.lang = lang.value;
+
+			localStorage.setItem('token', data.token);
+			localStorage.setItem('user', JSON.stringify(data.user));
+
+			axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+			
+			axios.post('user/setGeolocation', position).catch((error: any) => {
+				console.error('Error set geolocation', error);
+			});
+			app.mount('#app');
+		}).catch(() => {
+			app.mount('#app');
+		});
+	}
 
 	axios.interceptors.response.use(function (response) {
 		return response;
 	}, function (error) {
 		const { response } = error;
 		
-		console.log(response.statusText);
-
 		if (response.statusText == 'Network error') {
 			router.replace({name: 'Error', params: {
 				code: response.statusText,
 				message: 'Check your internet connection'
 			}});
+		} else if (response.status == 401) {
+			localStorage.removeItem('user');
+			localStorage.removeItem('token');
+
+			router.replace({
+				name: 'Error', 
+				params: {
+					code: response.status,
+					message: response.statusText
+				}
+			});
 		}
 		return Promise.reject(error);
 	});

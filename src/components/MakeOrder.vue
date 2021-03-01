@@ -9,7 +9,7 @@
 			</ion-list-header>
 			<ion-item lines="full">
 				<ion-radio-group v-model="formRef.type">
-					<ion-item>
+					<ion-item v-if="social != 'twitch'">
 						<ion-label>Лайки</ion-label>
 						<ion-radio slot="start" value="like"></ion-radio>
 					</ion-item>
@@ -34,14 +34,22 @@
 					<h3><p v-html="messagesRef.quantity" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
-			<ion-item lines="full">
-				<ion-range v-model="formRef.quantity" min="20" max="10000" color="secondary">
+			<ion-item lines="none">
+				<ion-label position="stacked">Выберите</ion-label>
+				<ion-range v-model="formRef.quantity" :min="min" max="10000" color="secondary">
 					<ion-label slot="start" v-text="formRef.quantity"></ion-label>
 					<ion-label slot="end">10000</ion-label>
 				</ion-range>
 			</ion-item>
+			<ion-item lines="full">
+				<ion-label position="stacked">или введите</ion-label>
+				<ion-input type="number" v-model="formRef.quantity"></ion-input>
+			</ion-item>
 			<ion-item lines="none">
-				<ion-label>Итого: {{ formRef.quantity * 10 }} coins</ion-label>
+				<ion-label>Итого: {{ totalRef ?? 0 }} coins</ion-label>
+				<ion-button @click="loadAd" slot="end" shape="round">
+					+30 coins
+				</ion-button>
 			</ion-item>
 			<div class="form-button">
 				<ion-button @click="makeOrder" size="default" expand="full" shape="round">Купить</ion-button>
@@ -49,9 +57,9 @@
 		</ion-list>
 		<ion-alert
 			:is-open="isOpenRef"
-			header="Успешно"
+			header="Success"
 			:message="messageRef"
-			:buttons="['Хорошо']"
+			:buttons="['OK']"
 			@onDidDismiss="setOpen(false)"
 		>
 		</ion-alert>
@@ -68,14 +76,17 @@
 		IonAlert,
 		IonRadio,
 		IonButton,
+		isPlatform,
 		IonRadioGroup,
 		IonListHeader,
 		alertController,
 	} from '@ionic/vue';
 	import axios from 'axios';
-	import { defineComponent, ref } from 'vue';
+	import { defineComponent, ref, watchEffect } from 'vue';
 	import { useRoute, useRouter } from 'vue-router';
-	
+	import { AdOptions } from 'capacitor-admob';
+	import { Plugins } from '@capacitor/core';
+
 	export default defineComponent({
 		name: 'MakeOrder',
 		props: {
@@ -94,20 +105,71 @@
 			IonListHeader,
 		},
 		setup(props) {
+			const { AdMob } = Plugins;
 			const router = useRouter();
 			const { params } = useRoute();
 			const social = props.title?.toLowerCase();
+			const min = social == 'twitch' ? 100 : 20;
 
 			const formRef = ref<any>({
-				type: 'like',
+				type: (social != 'twitch' ? 'like' : 'subs'),
+				count: min,
 				social: social,
-				quantity: 20,
+				quantity: min,
 			});
+			const totalRef = ref(0.00);
 			const isOpenRef = ref(false);
+			const priceRef = ref<any>(0);
+			const pricesRef = ref<any>({
+				'instagram_like': "34.90",
+				'instagram_subs': "44.90",
+				'likee_like': "37.90",
+				'likee_subs': "76.90",
+				'tiktok_like': "30.90",
+				'tiktok_subs': "30.90",
+				'twitch_subs': "30.90",
+			});
 			const setOpen = (state: boolean) => isOpenRef.value = state;
 
 			const messageRef = ref<string|null>(null);
 			const messagesRef = ref<any>({});
+
+			axios.get('user/getMyPrices').then(response => {
+				const { data } = response;
+
+				pricesRef.value = data.prices;
+				priceRef.value = data.prices[social + '_' + formRef.value.type];
+				totalRef.value = Math.floor(formRef.value.count * priceRef.value / 10);
+			}).catch(async(error) => {
+				const { response } = error;
+
+				if (response.data) {
+					const { data } = response;
+
+					if (data.message) {
+						const alert = await alertController
+							.create({
+								header: 'Error',
+								message: `<p class="text-danger">${data.message}</p>`,
+							});
+						return alert.present();
+					} else if (data.messages) {
+						const alert = await alertController
+							.create({
+								header: 'Error',
+								message: `<p class="text-danger">${data.messages[0]}</p>`,
+							});
+						return alert.present();
+					}
+				} else {
+					const alert = await alertController
+						.create({
+							header: 'Error',
+							message: `<p class="text-danger">Server error.</p>`,
+						});
+					return alert.present();
+				}
+			});
 
 			const makeOrder = () => {
 				axios.post('order/create', formRef.value).then(response => {
@@ -158,10 +220,82 @@
 				});
 			};
 
+			const loadAd = async() => {
+				if (isPlatform('android')) {
+					const loadAd = () => {
+						const options: AdOptions = {
+							adId: 'ca-app-pub-7650228313887885/4950127471',
+						}
+						AdMob.prepareRewardVideoAd(options).then(
+							(result: any) => {
+								AdMob.showRewardVideoAd().then(
+									(value: any) => {
+										console.log('Showed ad:', JSON.stringify(value));
+									},
+									(error: any) => {
+										console.error('Admob Error:', JSON.stringify(error));
+									}
+								);
+								console.log('Prepared rewardVideo:', JSON.stringify(result))
+							}, (error: any) => {
+								console.error('Prepared Error:', JSON.stringify(error));
+							}
+						);
+					};
+					loadAd();
+
+					AdMob.addListener('onAdFailedToLoad', async (error: any) => {
+						console.error('AdFiledLoad:', JSON.stringify(error));
+					});
+
+					AdMob.addListener('onRewarded', async (result: any) => {
+						axios.post('/user/updateTime', {time: (Math.floor(Date.now() / 1000) + 1)}).then((response: any) => {
+							console.log('Set time', JSON.stringify(response));
+						});
+						console.log('onRewarded:' + (Math.floor(Date.now() / 1000) + 1), JSON.stringify(result));
+					});
+				} else {
+					const alert = await alertController
+						.create({
+							header: 'Error',
+							message: `<p class="text-danger">This feature is only available for Android</p>`,
+						});
+					return alert.present();
+				}
+			};
+
+			watchEffect(() => {
+				priceRef.value = pricesRef.value[social + '_' + formRef.value.type];
+				
+				if (formRef.value.quantity >= min && formRef.value.quantity <= 10000) {
+					formRef.value.count = formRef.value.quantity;
+					totalRef.value = Math.floor(formRef.value.count * priceRef.value / 10);
+				}
+				
+				if (formRef.value.count >= min && formRef.value.count <= 10000) {
+					formRef.value.quantity = formRef.value.count;
+					totalRef.value = Math.floor(formRef.value.count * priceRef.value / 10);
+				}
+			});
+
 			if (params.type) {
 				formRef.value = params;
 			}
-			return { formRef, useRoute, makeOrder, messageRef, messagesRef, isOpenRef, setOpen };
+
+			return { 
+				min: min,
+				loadAd,
+				social: social,
+				setOpen,
+				formRef,
+				useRoute,
+				priceRef,
+				totalRef,
+				isOpenRef,
+				makeOrder,
+				messageRef,
+				messagesRef,
+			};
 		}
 	});
 </script>

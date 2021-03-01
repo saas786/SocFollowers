@@ -10,10 +10,10 @@
 			<ion-grid>
 				<ion-row>
 					<ion-col size="6">
-
+						Test
 					</ion-col>
 					<ion-col size="6">
-
+						Test
 					</ion-col>
 				</ion-row>
 			</ion-grid>

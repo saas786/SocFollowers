@@ -129,7 +129,6 @@
 		IonSegment,
 		IonContent,
 		IonToolbar,
-		isPlatform,
 		menuController,
 		IonRouterOutlet,
 		alertController,
@@ -143,7 +142,6 @@
 		PushNotificationToken,
 		PushNotificationActionPerformed
 	} from '@capacitor/core';
-	import { AdOptions } from 'capacitor-admob';
 	import { people, heart, refresh, cashOutline } from 'ionicons/icons';
 
 	import store from './store';
@@ -241,7 +239,7 @@
 			}
 		},
 		created() {
-			const { AdMob, PushNotifications } = Plugins;
+			const { PushNotifications } = Plugins;
 			const json: any = localStorage.getItem('user');
 
 			this.user = JSON.parse(json);
@@ -288,42 +286,6 @@
 					console.log('notifyPerformed:', JSON.stringify(notification))
 				}
 			);
-
-			if (isPlatform('android')) {
-				const loadAd = () => {
-					const options: AdOptions = {
-						adId: 'ca-app-pub-7650228313887885/4950127471',
-						//adId: 'ca-app-pub-3940256099942544/6300978111',
-					}
-					AdMob.prepareRewardVideoAd(options).then(
-						(result: any) => {
-							AdMob.showRewardVideoAd().then(
-								(value: any) => {
-									console.log('Showed ad:', JSON.stringify(value));  // true
-								},
-								(error: any) => {
-									console.error('Admob Error:', JSON.stringify(error)); // show error
-								}
-							);
-							console.log('Prepared rewardVideo:', JSON.stringify(result))
-						}, (error: any) => {
-							console.error('Prepared Error:', JSON.stringify(error));
-						}
-					);
-				};
-				loadAd();
-
-				AdMob.addListener('onAdFailedToLoad', async (error: any) => {
-					console.error('AdFiledLoad:', JSON.stringify(error));
-				});
-
-				AdMob.addListener('onRewarded', async (result: any) => {
-					axios.post('/user/updateTime', {time: (Math.floor(Date.now() / 1000) + 1)}).then((response: any) => {
-						console.log('Set time', JSON.stringify(response));
-					});
-					console.log('onRewarded:' + (Math.floor(Date.now() / 1000) + 1), JSON.stringify(result));
-				});
-			}
 		},
 		setup() {
 			return { people, heart, refresh, cashOutline };

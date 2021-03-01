@@ -5,7 +5,7 @@ import Tabs from '../views/Tabs.vue'
 const routes: Array<RouteRecordRaw> = [
 	{
 		path: '/',
-		redirect: '/tabs/tiktok'
+		redirect: '/tabs/news'
 	},
 	{
 		name: 'Products',
@@ -23,7 +23,12 @@ const routes: Array<RouteRecordRaw> = [
 		children: [
 			{
 				path: '',
-				redirect: '/tabs/tiktok'
+				redirect: '/tabs/news'
+			},
+			{
+				name: 'News',
+				path: 'news',
+				component: () => import('@/views/News.vue')
 			},
 			{
 				path: 'tiktok',
@@ -44,11 +49,6 @@ const routes: Array<RouteRecordRaw> = [
 				path: 'likee',
 				name: 'likee',
 				component: () => import('@/views/Likee.vue')
-			},
-			{
-				path: 'youtube',
-				name: 'youtube',
-				component: () => import('@/views/Youtube.vue')
 			}
 		]
 	}
@@ -57,6 +57,6 @@ const routes: Array<RouteRecordRaw> = [
 const router = createRouter({
 	history: createWebHistory(process.env.BASE_URL),
 	routes
-})
+});
 
-export default router
+export default router;

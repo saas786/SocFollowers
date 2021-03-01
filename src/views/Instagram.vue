@@ -23,8 +23,9 @@
 	} from '@ionic/vue';
 	import MakeOrder from '@/components/MakeOrder.vue';
 	import Header from '@/components/Header.vue';
-
-	export default  {
+	import { defineComponent } from 'vue';
+	
+	export default defineComponent({
 		name: 'Instagram',
 		components: {
 			Header,
@@ -35,5 +36,5 @@
 			IonTitle,
 			IonContent
 		},
-	}
+	});
 </script>

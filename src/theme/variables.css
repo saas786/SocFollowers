@@ -4,12 +4,12 @@ http://ionicframework.com/docs/theming/ */
 /** Ionic CSS Variables **/
 :root {
 	/** primary **/
-	--ion-color-primary: #3880ff;
-	--ion-color-primary-rgb: 56, 128, 255;
+	--ion-color-primary: #71ad96;
+	--ion-color-primary-rgb: 113,173,150;
 	--ion-color-primary-contrast: #ffffff;
-	--ion-color-primary-contrast-rgb: 255, 255, 255;
-	--ion-color-primary-shade: #3171e0;
-	--ion-color-primary-tint: #4c8dff;
+	--ion-color-primary-contrast-rgb: 0,0,0;
+	--ion-color-primary-shade: #639884;
+	--ion-color-primary-tint: #7fb5a1;
 
 	/** secondary **/
 	--ion-color-secondary: #3dc2ff;
@@ -91,12 +91,12 @@ http://ionicframework.com/docs/theming/ */
 	 */
 
 	body {
-		--ion-color-primary: #428cff;
-		--ion-color-primary-rgb: 66,140,255;
-		--ion-color-primary-contrast: #ffffff;
-		--ion-color-primary-contrast-rgb: 255,255,255;
-		--ion-color-primary-shade: #3a7be0;
-		--ion-color-primary-tint: #5598ff;
+		--ion-color-primary: #60a48a;
+		--ion-color-primary-rgb: 96,164,138;
+		--ion-color-primary-contrast: #000000;
+		--ion-color-primary-contrast-rgb: 0,0,0;
+		--ion-color-primary-shade: #549079;
+		--ion-color-primary-tint: #70ad96;
 
 		--ion-color-secondary: #50c8ff;
 		--ion-color-secondary-rgb: 80,200,255;
@@ -245,6 +245,15 @@ http://ionicframework.com/docs/theming/ */
 	}
 }
 
+.ion-color-theme {
+	--ion-color-base: var(--ion-color-theme);
+	--ion-color-base-rgb: var(--ion-color-theme-rgb);
+	--ion-color-contrast: var(--ion-color-theme-contrast);
+	--ion-color-contrast-rgb: var(--ion-color-theme-contrast-rgb);
+	--ion-color-shade: var(--ion-color-theme-shade);
+	--ion-color-tint: var(--ion-color-theme-tint);
+}
+
 .ion-color-muted {
 	--ion-color-base: var(--ion-color-muted);
 	--ion-color-base-rgb: var(--ion-color-muted-rgb);
@@ -256,4 +265,21 @@ http://ionicframework.com/docs/theming/ */
 
 .text-muted {
 	color: var(--ion-color-muted);
+}
+
+.d-flex {
+	display: flex;
+}
+
+.icon-position {
+	position: relative;
+	top: 3px;
+}
+
+.card-image {
+	height: 260px;
+	border-radius: .30rem;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }

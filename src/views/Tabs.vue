@@ -10,6 +10,10 @@
 					<ion-icon :icon="logoInstagram" />
 					<ion-label>Instagram</ion-label>
 				</ion-tab-button>
+				<ion-tab-button tab="news" href="/tabs/news">
+					<ion-icon :icon="newspaper" />
+					<ion-label>News</ion-label>
+				</ion-tab-button>
 				<ion-tab-button tab="twitch" href="/tabs/twitch">
 					<ion-icon :icon="logoTwitch" />
 					<ion-label>Twitch</ion-label>
@@ -23,10 +27,6 @@
 					</template>
 					<ion-label>Likee</ion-label>
 				</ion-tab-button>
-				<ion-tab-button tab="youtube" href="/tabs/youtube">
-					<ion-icon :icon="logoYoutube" />
-					<ion-label>Youtube</ion-label>
-				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>
 	</ion-page>
@@ -34,7 +34,7 @@
 
 <script lang="ts">
 	import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage } from '@ionic/vue';
-	import { logoYoutube, logoInstagram, logoTwitch, logoTiktok, heart } from 'ionicons/icons';
+	import { newspaper, logoInstagram, logoTwitch, logoTiktok, heart } from 'ionicons/icons';
 	import { defineComponent, ref } from 'vue';
 
 	export default defineComponent({
@@ -54,7 +54,7 @@
 			return {
 				afterTabChange,
 				isLikeeRef,
-				logoYoutube,
+				newspaper,
 				logoInstagram,
 				logoTwitch,
 				logoTiktok,

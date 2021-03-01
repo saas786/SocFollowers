@@ -28,6 +28,7 @@
 		IonGrid,
 		IonRow,
 		IonCol,
+		IonText,
 		IonPage,
 		IonHeader,
 		IonToolbar,
@@ -43,6 +44,7 @@
 			IonGrid,
 			IonRow,
 			IonCol,
+			IonText,
 			IonPage,
 			IonTitle,
 			IonHeader,
@@ -52,7 +54,7 @@
         setup() {
             const errorRef = ref<any>({
                 code: 500,
-                message: 'Some error'
+                message: 'Application error'
             });
             errorRef.value = useRoute().params;
 

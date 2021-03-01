@@ -14,12 +14,13 @@
 </template>
 
 <script lang="ts">
-import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
-import MakeOrder from '@/components/MakeOrder.vue';
-import Header from '@/components/Header.vue';
-
-export default  {
-	name: 'Likee',
-	components: { Header, MakeOrder, IonPage, IonHeader, IonToolbar, IonTitle, IonContent },
-}
+	import { IonPage, IonHeader, IonToolbar, IonTitle, IonContent } from '@ionic/vue';
+	import MakeOrder from '@/components/MakeOrder.vue';
+	import Header from '@/components/Header.vue';
+	import { defineComponent } from 'vue';
+		
+	export default defineComponent({
+		name: 'Likee',
+		components: { Header, MakeOrder, IonPage, IonHeader, IonToolbar, IonTitle, IonContent },
+	});
 </script>
