@@ -10,7 +10,7 @@
 			<ion-buttons slot="primary">
 				<ion-button router-link="/products">
 					<ion-icon :icon="cashOutline"></ion-icon>
-					<p :style="{marginLeft: '5px'}">{{ getUser.coins }}</p>
+					<p :style="{marginLeft: '5px'}">{{ user.coins }}</p>
 				</ion-button>
 			</ion-buttons>
 			<ion-title>{{ title }}</ion-title>
@@ -31,7 +31,7 @@
 	} from '@ionic/vue';
 	import { cashOutline, newspaperOutline } from 'ionicons/icons';
 	import { defineComponent } from 'vue';
-	import store from '@/store';
+	import { mapGetters } from 'vuex';
 
 	export default defineComponent({
 		name: 'Header',
@@ -39,11 +39,11 @@
 			title: String,
 			isBack: Boolean,
 		},
+		computed: {
+			...mapGetters({user: 'getUserData'})
+		},
 		setup() {
-			const { getUser } = store.getters;
-			
 			return {
-				getUser,
 				cashOutline,
 				newspaperOutline
 			};

@@ -58,7 +58,7 @@
 										<ion-icon :icon="cashOutline"></ion-icon>
 										<p
 											:style="{marginLeft: '5px'}"
-										>{{ order.count * 10 }}</p>
+										>{{ order.price }}</p>
 									</ion-button>
 								</ion-label>
 							</template>
@@ -97,7 +97,7 @@
 										<ion-icon :icon="cashOutline"></ion-icon>
 										<p
 											:style="{marginLeft: '5px'}"
-										>{{ order.count * 10 }}</p>
+										>{{ order.price }}</p>
 									</ion-button>
 								</ion-label>
 								<ion-button fill="clear" @click="repeatOrder(order)">
@@ -240,11 +240,8 @@
 		},
 		created() {
 			const { PushNotifications } = Plugins;
-			const json: any = localStorage.getItem('user');
 
-			this.user = JSON.parse(json);
-
-			store.commit('setUser', this.user);
+			this.user = store.getters.getUserData;
 
 			this.getOrders();
 		

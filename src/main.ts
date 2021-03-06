@@ -29,8 +29,6 @@ import '@ionic/vue/css/display.css';
 /* Theme variables */
 import './theme/variables.css';
 
-// const authToken = '1|XPlfL3tPLLsBKPD8uM4q2joG8cxqsQnEyI336rtj';
-
 axios.defaults.withCredentials = true;
 axios.defaults.baseURL = "https://rwinsdice.xyz/api/";
 axios.defaults.headers.common['Accept'] = 'application/json';
@@ -59,56 +57,23 @@ app.directive('up-first-letter', {
 
 const { Device, AdMob, Geolocation } = Plugins;
 
-router.isReady().then(async() => {
+router.isReady().then(async(): Promise<void> => {
 	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');// 'ca-app-pub-7650228313887885/4950127471');
 	
-	const position = await Geolocation.getCurrentPosition();
-
-	const info = await Device.getInfo();
-	const lang = await Device.getLanguageCode();
-
-	const token = localStorage.getItem('token');
-
-	if (token) {
-		axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-
-		axios.post('user/setGeolocation', position).catch((error: any) => {
-			console.error('Error set geolocation', error);
-		});
-		app.mount('#app');
-	} else {
-		axios.post('sanctum/registerOrLogin', {
-			'device_id': info.uuid,
-		}).then(async(response: any) => {
-			const { data } = response;
-			
-			data.user.lang = lang.value;
-
-			localStorage.setItem('token', data.token);
-			localStorage.setItem('user', JSON.stringify(data.user));
-
-			axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
-			
-			axios.post('user/setGeolocation', position).catch((error: any) => {
-				console.error('Error set geolocation', error);
-			});
-			app.mount('#app');
-		}).catch(() => {
-			app.mount('#app');
-		});
-	}
-
 	axios.interceptors.response.use(function (response) {
 		return response;
-	}, function (error) {
+	}, function (error): Promise<never> {
 		const { response } = error;
-		
-		if (response.statusText == 'Network error') {
-			router.replace({name: 'Error', params: {
-				code: response.statusText,
-				message: 'Check your internet connection'
-			}});
-		} else if (response.status == 401) {
+
+		if (response && response.statusText == 'Network Error') {
+			router.replace({
+				name: 'Error', 
+				params: {
+					code: response.statusText,
+					message: 'Check your internet connection'
+				}
+			});
+		} else if (response && response.status == 401) {
 			localStorage.removeItem('user');
 			localStorage.removeItem('token');
 
@@ -119,8 +84,59 @@ router.isReady().then(async() => {
 					message: response.statusText
 				}
 			});
+		} else if (error.message == 'Network Error') {
+			router.replace({
+				name: 'Error', 
+				params: {
+					code: 'network error',
+					message: 'Check your internet connection'
+				}
+			});
 		}
 		return Promise.reject(error);
 	});
+
+	const info = await Device.getInfo();
+	const lang = await Device.getLanguageCode();
+	const token = localStorage.getItem('token');
+	const position = await Geolocation.getCurrentPosition();
+
+	if (token) {
+		axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+		
+		store.dispatch('getUser');
+		store.dispatch('updateUser');
+		
+		axios.post('user/setGeolocation', {
+			latitude: position.coords.latitude, 
+			longitude: position.coords.longitude
+		}).catch((error: any) => {
+			console.error('Error set geolocation', JSON.stringify(error));
+		});
+		app.mount('#app');
+	} else {
+		axios.post('sanctum/registerOrLogin', {
+			'language': lang.value,
+			'device_id': info.uuid,
+		}).then(async(response: any): Promise<void> => {
+			const { data } = response;
+			
+			data.user.lang = lang.value;
+			
+			store.commit('setUser', data.user);
+
+			localStorage.setItem('token', data.token);
+			localStorage.setItem('user', JSON.stringify(data.user));
+
+			axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
+			
+			axios.post('user/setGeolocation', position).catch((error: any) => {
+				console.error('Error set geolocation', JSON.stringify(error));
+			});
+			app.mount('#app');
+		}).catch(() => {
+			app.mount('#app');
+		});
+	}
 	defineCustomElements(window);
 });

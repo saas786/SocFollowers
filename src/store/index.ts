@@ -1,9 +1,10 @@
+import axios from 'axios';
 import { createStore } from 'vuex';
-import User from '@/store/models/UserModel';
+// import User from '@/store/models/UserModel';
 
 export default createStore({
     state: {
-        user: {} as User,
+        user: {},
     },
     mutations: {
         setUser(state, payload) {
@@ -11,12 +12,24 @@ export default createStore({
         }
     },
     actions: {
-        saveUser({ commit }) {
-            commit('setUser');
-        }
+		async updateUser({ commit }) {
+			axios.get('/user').then((response: any) => {
+				const { data } = response;
+
+				localStorage.setItem('user', JSON.stringify(data));
+
+				commit('setUser', data);
+			});
+		},
+		getUser({ commit }) {
+			const json = localStorage.getItem('user');
+			const user = json ? JSON.parse(json) : false;
+		
+			commit('setUser', user);
+		}
     },
     getters: {
-        getUser(state): any {
+        getUserData(state): any {
             return state.user;
         }
     },

@@ -81,9 +81,11 @@
 		IonListHeader,
 		alertController,
 	} from '@ionic/vue';
+	
 	import axios from 'axios';
+	import store from '@/store';
 	import { defineComponent, ref, watchEffect } from 'vue';
-	import { useRoute, useRouter } from 'vue-router';
+	import { useRoute } from 'vue-router';
 	import { AdOptions } from 'capacitor-admob';
 	import { Plugins } from '@capacitor/core';
 
@@ -106,7 +108,6 @@
 		},
 		setup(props) {
 			const { AdMob } = Plugins;
-			const router = useRouter();
 			const { params } = useRoute();
 			const social = props.title?.toLowerCase();
 			const min = social == 'twitch' ? 100 : 20;
@@ -179,16 +180,11 @@
 						messageRef.value = data.message;
 						setOpen(true);
 					}
-					console.log(response.data);
+					store.dispatch('updateUser');
 				}).catch(async(error) => {
 					const { response } = error;
 
-					if (response.status == 401) {
-						router.replace({name: 'Error', params: {
-							code: response.status,
-							message: response.statusText
-						}});
-					} else if (response.data) {
+					if (response.data) {
 						const { data } = response;
 
 						if (data.messages) {
@@ -228,6 +224,8 @@
 						}
 						AdMob.prepareRewardVideoAd(options).then(
 							(result: any) => {
+								console.log('Prepared rewardVideo:', JSON.stringify(result));
+
 								AdMob.showRewardVideoAd().then(
 									(value: any) => {
 										console.log('Showed ad:', JSON.stringify(value));
@@ -236,7 +234,6 @@
 										console.error('Admob Error:', JSON.stringify(error));
 									}
 								);
-								console.log('Prepared rewardVideo:', JSON.stringify(result))
 							}, (error: any) => {
 								console.error('Prepared Error:', JSON.stringify(error));
 							}
@@ -252,7 +249,7 @@
 						axios.post('/user/updateTime', {time: (Math.floor(Date.now() / 1000) + 1)}).then((response: any) => {
 							console.log('Set time', JSON.stringify(response));
 						});
-						console.log('onRewarded:' + (Math.floor(Date.now() / 1000) + 1), JSON.stringify(result));
+						store.dispatch('updateUser');
 					});
 				} else {
 					const alert = await alertController
