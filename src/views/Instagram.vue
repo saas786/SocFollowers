@@ -4,11 +4,10 @@
 		<ion-content :fullscreen="true">
 			<ion-header collapse="condense">
 				<ion-toolbar>
-					<ion-title size="large">Instagram</ion-title>
+					<ion-title size="large">{{ t('socials.instagram') }}</ion-title>
 				</ion-toolbar>
 			</ion-header>
-
-			<MakeOrder key="instagram" title="Instagram" />
+			<MakeOrder key="instagram" :title="t('socials.instagram')" />
 		</ion-content>
 	</ion-page>
 </template>
@@ -24,7 +23,8 @@
 	import MakeOrder from '@/components/MakeOrder.vue';
 	import Header from '@/components/Header.vue';
 	import { defineComponent } from 'vue';
-	
+	import { useI18n } from 'vue-i18n';
+
 	export default defineComponent({
 		name: 'Instagram',
 		components: {
@@ -36,5 +36,10 @@
 			IonTitle,
 			IonContent
 		},
+		setup() {
+			const { t } = useI18n();
+
+			return { t };
+		}
 	});
 </script>

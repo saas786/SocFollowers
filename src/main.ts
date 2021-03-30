@@ -2,9 +2,13 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
 
+
 import axios from 'axios';
 import store from "@/store";
 import VueAxios from 'vue-axios';
+
+/* import helpers */
+import i18n from "@/helpers/i18n";
 
 import { IonicVue } from '@ionic/vue';
 import { Plugins } from '@capacitor/core';
@@ -42,10 +46,11 @@ const mode = params.get("mode");
 console.log(mode);
 
 const app = createApp(App)
-	.use(IonicVue)// , {mode: mode == null ? 'ios' : mode })
+	.use(IonicVue)//, {mode: mode == null ? 'ios' : mode })
+	.use(VueAxios, axios)
 	.use(router)
 	.use(store)
-	.use(VueAxios, axios);
+	.use(i18n);
 
 app.directive('up-first-letter', {
 	beforeMount(el, binding, vnode) {
@@ -57,8 +62,56 @@ app.directive('up-first-letter', {
 
 const { Device, AdMob, Geolocation } = Plugins;
 
+const getCurrentPosition = () => {
+	Geolocation.getCurrentPosition().then((result: any) => {
+		axios.post('user/setGeolocation', {
+			latitude: result.coords.latitude, 
+			longitude: result.coords.longitude
+		}).then(() => {
+			store.dispatch('updateUser');
+		}).catch((error: any) => {
+			console.error('Error set geolocation', JSON.stringify(error));
+		});
+	}).catch((error: any) => {
+		console.error('Error get geolocation', error.message);
+	});
+};
+
+(async() => {
+	const locale: any = localStorage.getItem('locale') ?? await Device.getLanguageCode();
+	let getLocale = (locale.value ?? locale) ?? 'en';
+
+	getLocale = getLocale.split('-')[0];
+	
+	localStorage.setItem('locale', getLocale);
+
+	const getLocales = sessionStorage.getItem(`locale.${getLocale}`) ?? false;
+
+	if (getLocales) {
+		i18n.global.setLocaleMessage(getLocale, JSON.parse(getLocales));
+	} else {
+		axios.get('locales/getList').then((response: any) => {
+			const { data } = response;
+
+			for(const i in data) {
+				sessionStorage.setItem(`locale.${i}`, JSON.stringify(data[i]));
+
+				i18n.global.setLocaleMessage(i, data[i]);
+			}
+
+			if (data[getLocale]) {
+				i18n.global.locale = getLocale;
+			} else {
+				console.error(`Locale ${getLocale} is not found`);
+			}
+		}).catch((error: any) => {
+			console.error('Error getting locales list: ', JSON.stringify(error));
+		});
+	}
+})();
+
 router.isReady().then(async(): Promise<void> => {
-	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');// 'ca-app-pub-7650228313887885/4950127471');
+	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');
 	
 	axios.interceptors.response.use(function (response) {
 		return response;
@@ -97,9 +150,8 @@ router.isReady().then(async(): Promise<void> => {
 	});
 
 	const info = await Device.getInfo();
-	const lang = await Device.getLanguageCode();
 	const token = localStorage.getItem('token');
-	const position = await Geolocation.getCurrentPosition();
+	const locale = localStorage.getItem('locale') ?? 'en';
 
 	if (token) {
 		axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
@@ -107,21 +159,15 @@ router.isReady().then(async(): Promise<void> => {
 		store.dispatch('getUser');
 		store.dispatch('updateUser');
 		
-		axios.post('user/setGeolocation', {
-			latitude: position.coords.latitude, 
-			longitude: position.coords.longitude
-		}).catch((error: any) => {
-			console.error('Error set geolocation', JSON.stringify(error));
-		});
+		getCurrentPosition();
+
 		app.mount('#app');
 	} else {
 		axios.post('sanctum/registerOrLogin', {
-			'language': lang.value,
+			'language': locale,
 			'device_id': info.uuid,
 		}).then(async(response: any): Promise<void> => {
 			const { data } = response;
-			
-			data.user.lang = lang.value;
 			
 			store.commit('setUser', data.user);
 
@@ -130,9 +176,8 @@ router.isReady().then(async(): Promise<void> => {
 
 			axios.defaults.headers.common['Authorization'] = `Bearer ${data.token}`;
 			
-			axios.post('user/setGeolocation', position).catch((error: any) => {
-				console.error('Error set geolocation', JSON.stringify(error));
-			});
+			getCurrentPosition();
+			
 			app.mount('#app');
 		}).catch(() => {
 			app.mount('#app');

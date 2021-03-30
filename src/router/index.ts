@@ -13,6 +13,11 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Products.vue')
 	},
 	{
+		name: 'PrivacyAndTerms',
+		path: '/privacy_terms',
+		component: () => import('@/views/PrivacyAndTerms.vue')
+	},
+	{
 		name: 'Error',
 		path: '/error',
 		component: () => import('@/views/Error.vue')

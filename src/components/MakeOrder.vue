@@ -3,25 +3,25 @@
 		<ion-list>
 			<ion-list-header>
 				<ion-label>
-					<h1><b>Тип накрутки</b></h1>
+					<h1><b>{{ t('message.type_of_cheat') }}</b></h1>
 					<h3><p v-html="messagesRef.type" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
 			<ion-item lines="full">
 				<ion-radio-group v-model="formRef.type">
 					<ion-item v-if="social != 'twitch'">
-						<ion-label>Лайки</ion-label>
+						<ion-label>{{ t('message.likes') }}</ion-label>
 						<ion-radio slot="start" value="like"></ion-radio>
 					</ion-item>
 					<ion-item lines="none">
-						<ion-label>Подписчики</ion-label>
+						<ion-label>{{ t('message.subscribers') }}</ion-label>
 						<ion-radio slot="start" value="subs"></ion-radio>
 					</ion-item>
 				</ion-radio-group>
 			</ion-item>
 			<ion-list-header>
 				<ion-label>
-					<h1><b>Ссылка/Никнейм</b></h1>
+					<h1><b>{{ t('message.link_nickname') }}</b></h1>
 					<h3><p v-html="messagesRef.link" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
@@ -30,29 +30,29 @@
 			</ion-item>
 			<ion-list-header>
 				<ion-label>
-					<h1><b>Количество</b></h1>
+					<h1><b>{{ t('message.quantity') }}</b></h1>
 					<h3><p v-html="messagesRef.quantity" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
 			<ion-item lines="none">
-				<ion-label position="stacked">Выберите</ion-label>
+				<ion-label position="stacked">{{ t('message.select') }}</ion-label>
 				<ion-range v-model="formRef.quantity" :min="min" max="10000" color="secondary">
 					<ion-label slot="start" v-text="formRef.quantity"></ion-label>
 					<ion-label slot="end">10000</ion-label>
 				</ion-range>
 			</ion-item>
 			<ion-item lines="full">
-				<ion-label position="stacked">или введите</ion-label>
+				<ion-label position="stacked">{{ t('message.or_enter') }}</ion-label>
 				<ion-input type="number" v-model="formRef.quantity"></ion-input>
 			</ion-item>
 			<ion-item lines="none">
-				<ion-label>Итого: {{ totalRef ?? 0 }} coins</ion-label>
+				<ion-label>{{ totalString }}</ion-label>
 				<ion-button @click="loadAd" slot="end" shape="round">
-					+30 coins
+					+30 {{ t('message.coin', 30) }}
 				</ion-button>
 			</ion-item>
 			<div class="form-button">
-				<ion-button @click="makeOrder" size="default" expand="full" shape="round">Купить</ion-button>
+				<ion-button @click="makeOrder" size="default" expand="full" shape="round">{{ t('message.buy') }}</ion-button>
 			</div>
 		</ion-list>
 		<ion-alert
@@ -85,15 +85,13 @@
 	import axios from 'axios';
 	import store from '@/store';
 	import { defineComponent, ref, watchEffect } from 'vue';
-	import { useRoute } from 'vue-router';
 	import { AdOptions } from 'capacitor-admob';
 	import { Plugins } from '@capacitor/core';
+	import { useRoute } from 'vue-router';
+	import { useI18n } from "vue-i18n";
 
 	export default defineComponent({
 		name: 'MakeOrder',
-		props: {
-			title: String,
-		},
 		components: {
 			IonInput,
 			IonRange,
@@ -105,11 +103,14 @@
 			IonButton,
 			IonRadioGroup,
 			IonListHeader,
+			
 		},
-		setup(props) {
+		setup() {
+			const { t } = useI18n();
 			const { AdMob } = Plugins;
-			const { params } = useRoute();
-			const social = props.title?.toLowerCase();
+			const { params, name } = useRoute();
+			
+			const social: any = name;
 			const min = social == 'twitch' ? 100 : 20;
 
 			const formRef = ref<any>({
@@ -119,6 +120,7 @@
 				quantity: min,
 			});
 			const totalRef = ref(0.00);
+			
 			const isOpenRef = ref(false);
 			const priceRef = ref<any>(0);
 			const pricesRef = ref<any>({
@@ -130,6 +132,7 @@
 				'tiktok_subs': "30.90",
 				'twitch_subs': "30.90",
 			});
+			const totalString = ref<string|null>('');
 			const setOpen = (state: boolean) => isOpenRef.value = state;
 
 			const messageRef = ref<string|null>(null);
@@ -234,7 +237,15 @@
 										console.error('Admob Error:', JSON.stringify(error));
 									}
 								);
-							}, (error: any) => {
+							}, async(error: any) => {
+								if (error == 'AdMob does not have web implementation.') {
+									const alert = await alertController
+										.create({
+											header: 'Error',
+											message: `<p class="text-danger">This feature is only available for Android</p>`,
+										});
+									return alert.present();
+								}
 								console.error('Prepared Error:', JSON.stringify(error));
 							}
 						);
@@ -273,13 +284,15 @@
 					formRef.value.quantity = formRef.value.count;
 					totalRef.value = Math.floor(formRef.value.count * priceRef.value / 10);
 				}
+				totalString.value = t('message.total') + ': ' + totalRef.value + ' ' + t('message.coin', totalRef.value);
 			});
 
 			if (params.type) {
 				formRef.value = params;
 			}
 
-			return { 
+			return {
+				t,
 				min: min,
 				loadAd,
 				social: social,
@@ -292,6 +305,7 @@
 				makeOrder,
 				messageRef,
 				messagesRef,
+				totalString,
 			};
 		}
 	});
@@ -302,6 +316,7 @@
 		padding-top: var(--ion-padding, 16px);
 		padding-left: var(--ion-padding, 16px);
 		padding-right: var(--ion-padding, 16px);
+		padding-bottom: var(--ion-padding, 10px);
 	}
 
 	.input-error {

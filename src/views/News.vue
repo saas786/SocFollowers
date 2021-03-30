@@ -1,10 +1,10 @@
 <template>
 	<ion-page>
-		<Header title="Новости" />
+		<Header :title="$t('message.news')" />
 		<ion-content :fullscreen="true">
 			<ion-header collapse="condense">
 				<ion-toolbar>
-					<ion-title size="large">Новости</ion-title>
+					<ion-title size="large">{{ $t('message.news') }}</ion-title>
 				</ion-toolbar>
 			</ion-header>
 			<ion-refresher slot="fixed" pull-factor="0.5" pull-min="100" pull-max="200" @ionRefresh="doRefresh($event)">
@@ -13,7 +13,7 @@
 			<div v-if="newsRef == null">
 				<ion-card>
 					<ion-card-content color="muted" class="ion-text-muted">
-						Пока что пусто
+						{{ $t('message.is_empty') }}
 					</ion-card-content>
 				</ion-card>
 			</div>
@@ -24,11 +24,11 @@
 					:style="{backgroundImage: 'url(' + news.img + ')'}"
 				></div>
 				<ion-card-header>
-					<ion-card-title>{{ news.title }}</ion-card-title>
+					<ion-card-title>{{ locale == 'ru' && news.title_ru !== null ? news.title_ru : news.title }}</ion-card-title>
 				</ion-card-header>
 				<ion-card-content color="muted" class="d-flex ion-justify-content-between">
 					<i>{{ moment(news.created_at).fromNow() }}</i>
-					<b @click="getNewsInfo(news)">Подробнее</b>
+					<b @click="getNewsInfo(news)">{{ $t('message.detailed') }}</b>
 				</ion-card-content>
 			</ion-card>
 			<ion-modal
@@ -83,7 +83,9 @@
 			IonRefresherContent,
 		},
 		setup() {
-            moment.locale('ru');
+			const locale = localStorage.getItem('locale') ?? 'en';
+			
+            moment.locale(locale);
             
 			const newsRef   = ref<any>(null);
 			const dataModal = ref<any>({});
@@ -126,6 +128,7 @@
 			getNews();
 			
 			return {
+				locale: locale,
                 moment,
 				newsRef,
 				isOpenRef, 

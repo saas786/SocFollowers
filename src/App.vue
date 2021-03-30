@@ -3,7 +3,7 @@
 		<ion-menu side="start" type="overlay" menu-id="orders" content-id="main">
 			<ion-header>
 				<ion-toolbar>
-					<ion-title>Заказы</ion-title>
+					<ion-title>{{ $t('message.orders') }}</ion-title>
 					<ion-buttons slot="end">
 						<ion-button fill="clear" @click="getOrders">
 							<ion-icon :icon="refresh"></ion-icon>
@@ -15,10 +15,10 @@
 						v-model="segment"
 					>
 						<ion-segment-button value="active">
-							<ion-label>Активные</ion-label>
+							<ion-label>{{ $t('message.active') }}</ion-label>
 						</ion-segment-button>
 						<ion-segment-button value="history">
-							<ion-label>История</ion-label>
+							<ion-label>{{ $t('message.history') }}</ion-label>
 						</ion-segment-button>
 					</ion-segment>
 				</ion-toolbar>
@@ -28,7 +28,7 @@
 					<div v-if="segment == 'active'">
 						<div v-if="Object.keys(activeOrders).length == 0">
 							<ion-item class="ion-text-center" lines="none">
-								Пока что пусто.
+								{{ $t('message.is_empty') }}
 							</ion-item>
 						</div>
 						<ion-item
@@ -37,7 +37,7 @@
 							lines="full"
 						>
 							<template color="danger" v-if="!order">
-								<ion-label color="danger">Заказ не загружен</ion-label>
+								<ion-label color="danger">{{ $t('message.order_not_loaded') }}</ion-label>
 							</template>
 							<template v-else>
 								<ion-avatar slot="start">
@@ -67,7 +67,7 @@
 					<div v-else>
 						<div v-if="Object.keys(historyOrders).length == 0">
 							<ion-item class="ion-text-center" lines="none">
-								Пока что пусто.
+								{{ $t('message.is_empty') }}
 							</ion-item>
 						</div>
 						<ion-item
@@ -76,7 +76,7 @@
 							lines="full"
 						>
 							<template color="danger" v-if="!order">
-								<ion-label color="danger">Заказ не загружен</ion-label>
+								<ion-label color="danger">{{ $t('message.order_not_loaded') }}</ion-label>
 							</template>
 							<template v-else>
 								<ion-avatar slot="start">
@@ -142,9 +142,14 @@
 		PushNotificationToken,
 		PushNotificationActionPerformed
 	} from '@capacitor/core';
-	import { people, heart, refresh, cashOutline } from 'ionicons/icons';
-
+	import { 
+		people, 
+		heart, 
+		refresh, 
+		cashOutline
+	} from 'ionicons/icons';
 	import store from './store';
+	import { useRouter } from 'vue-router';
 
 	export default defineComponent({
 		name: 'App',
@@ -256,8 +261,9 @@
 			PushNotifications.addListener('registration',
 				(token: PushNotificationToken) => {
 					axios.post('user/subscribe', {token: token.value}).then((response: any) => {
+						console.log(JSON.stringify(response));
+
 						localStorage.setItem('pushToken', token.value);
-						// console.log(JSON.stringify(response));
 					}).catch((error: any) => {
 						console.error(JSON.stringify(error.response));
 					});
@@ -285,6 +291,13 @@
 			);
 		},
 		setup() {
+			const router = useRouter();
+
+			const isAcceptedPrivacyAndTerms = localStorage.getItem(`isAcceptedPrivacyAndPerms`) ?? false;
+
+			if (!isAcceptedPrivacyAndTerms) {
+				router.push({name: 'PrivacyAndTerms'});
+			}
 			return { people, heart, refresh, cashOutline };
 		}
 	});

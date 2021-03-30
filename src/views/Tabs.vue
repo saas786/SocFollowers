@@ -4,19 +4,19 @@
 			<ion-tab-bar slot="bottom">
 				<ion-tab-button tab="tiktok" href="/tabs/tiktok">
 					<ion-icon :icon="logoTiktok" />
-					<ion-label>Tik-tok</ion-label>
+					<ion-label>{{ $t('socials.tiktok') }}</ion-label>
 				</ion-tab-button>
 				<ion-tab-button tab="instagram" href="/tabs/instagram">
 					<ion-icon :icon="logoInstagram" />
-					<ion-label>Instagram</ion-label>
+					<ion-label>{{ $t('socials.instagram') }}</ion-label>
 				</ion-tab-button>
 				<ion-tab-button tab="news" href="/tabs/news">
 					<ion-icon :icon="newspaper" />
-					<ion-label>News</ion-label>
+					<ion-label>{{ $t('message.news') }}</ion-label>
 				</ion-tab-button>
 				<ion-tab-button tab="twitch" href="/tabs/twitch">
 					<ion-icon :icon="logoTwitch" />
-					<ion-label>Twitch</ion-label>
+					<ion-label>{{ $t('socials.twitch') }}</ion-label>
 				</ion-tab-button>
 				<ion-tab-button tab="likee" href="/tabs/likee">
 					<template v-if="isLikeeRef">
@@ -25,7 +25,7 @@
 					<template v-else>
 						<ion-icon :icon="heart" />
 					</template>
-					<ion-label>Likee</ion-label>
+					<ion-label>{{ $t('socials.likee') }}</ion-label>
 				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>

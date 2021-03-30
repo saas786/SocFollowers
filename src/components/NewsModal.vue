@@ -1,7 +1,7 @@
 <template>
 	<ion-header>
 		<ion-toolbar>
-			<ion-title>Новости</ion-title>
+			<ion-title>{{ $t('message.news') }}</ion-title>
 			<ion-buttons slot="end">
 				<ion-button @click="dismissModal">
 					<ion-icon size="large" :icon="closeOutline"></ion-icon>
@@ -10,16 +10,16 @@
 		</ion-toolbar>
 	</ion-header>
 	<ion-content :fullscreen="true" class="ion-padding-horizontal text-content">
-		<h1>{{ dataModal.title }}</h1>
+		<h1>{{ locale == 'ru' && dataModal.title_ru !== null ? dataModal.title_ru : dataModal.title }}</h1>
 		<div
 			v-if="dataModal.img"
 			class="card-image"
 			:style="{backgroundImage: 'url(' + dataModal.img + ')'}"
 		></div>
-		<p class="text-muted" style="padding-left: 10px;">
+		<p v-if="dataModal.created_at" class="text-muted" style="padding-left: 10px;">
 			<ion-icon class="icon-position" :icon="time"></ion-icon> <small>{{ moment(dataModal.created_at).fromNow() }}</small>
 		</p>
-		<p>{{ dataModal.text }}</p>
+		<p>{{ locale == 'ru' && dataModal.text_ru !== null ? dataModal.text_ru : dataModal.text }}</p>
 	</ion-content>
 </template>
 
@@ -41,9 +41,16 @@ export default defineComponent({
 	},
 	components: { IonContent, IonHeader, IonTitle, IonToolbar, IonButtons, IonButton, IonIcon },
 	setup() {
-		moment.locale('ru');
+		const locale = localStorage.getItem('locale') ?? 'en';
+			
+		moment.locale(locale);
 
-		return { time, moment, closeOutline };
+		return {
+			time, 
+			moment, 
+			locale: locale,
+			closeOutline,
+		};
 	}
 });
 </script>
