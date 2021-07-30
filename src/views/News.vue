@@ -10,27 +10,52 @@
 			<ion-refresher slot="fixed" pull-factor="0.5" pull-min="100" pull-max="200" @ionRefresh="doRefresh($event)">
 				<ion-refresher-content></ion-refresher-content>
 			</ion-refresher>
-			<div v-if="newsRef == null">
-				<ion-card>
-					<ion-card-content color="muted" class="ion-text-muted">
-						{{ $t('message.is_empty') }}
-					</ion-card-content>
-				</ion-card>
+			<div v-if="isLoadRef">
+				<ion-grid>
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-content">
+						<ion-col size-xs="12" size-sm="8" size-md="5" size-xl="3" class="ion-text-center">
+							<ion-spinner
+								name="dots"
+							></ion-spinner>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
 			</div>
-			<ion-card v-for="(news, i) in newsRef" v-bind:key="i">
-				<div
-					v-if="news.img"
-					class="card-image"
-					:style="{backgroundImage: 'url(' + news.img + ')'}"
-				></div>
-				<ion-card-header>
-					<ion-card-title>{{ locale == 'ru' && news.title_ru !== null ? news.title_ru : news.title }}</ion-card-title>
-				</ion-card-header>
-				<ion-card-content color="muted" class="d-flex ion-justify-content-between">
-					<i>{{ moment(news.created_at).fromNow() }}</i>
-					<b @click="getNewsInfo(news)">{{ $t('message.detailed') }}</b>
-				</ion-card-content>
-			</ion-card>
+			<div v-else-if="newsRef == null">
+				<ion-grid>
+					<ion-row>
+						<ion-col>
+							<ion-card>
+								<ion-card-content color="muted" class="ion-text-muted">
+									{{ $t('message.is_empty') }}
+								</ion-card-content>
+							</ion-card>
+						</ion-col>
+					</ion-row>
+				</ion-grid>
+			</div>
+			<ion-grid>
+					<ion-row>
+						<ion-col size-xs="12" size-sm="10" size-md="8" size-lg="6" size-xl="4" v-for="(news, i) in newsRef" v-bind:key="i">
+							<ion-card>
+								<div
+									v-if="news.img"
+									class="card-image"
+									:style="{backgroundImage: 'url(' + news.img + ')'}"
+								></div>
+								<svg v-else class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Фото УК" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Фото не указано</text></svg>
+								<ion-card-header>
+									<ion-card-title>{{ locale == 'ru' && news.title_ru !== null ? news.title_ru : news.title }}</ion-card-title>
+								</ion-card-header>
+								<ion-card-content color="muted" class="d-flex ion-justify-content-between">
+									<i>{{ moment(news.created_at).fromNow() }}</i>
+									<b @click="getNewsInfo(news)">{{ $t('message.detailed') }}</b>
+								</ion-card-content>
+							</ion-card>
+						</ion-col>
+					</ion-row>
+			</ion-grid>
+
 			<ion-modal
 				:is-open="isOpenRef"
 			>
@@ -45,6 +70,9 @@
 
 <script lang="ts">
 	import {
+		IonCol,
+		IonRow,
+		IonGrid,
 		IonPage,
 		IonCard,
 		IonCardTitle,
@@ -54,7 +82,8 @@
 		IonToolbar, 
 		IonTitle, 
 		IonContent, 
-		IonModal, 
+		IonModal,
+		IonSpinner,
 		IonRefresher,
 		IonRefresherContent,
 	} from '@ionic/vue';
@@ -67,6 +96,9 @@
 	export default defineComponent({
 		name: 'News',
 		components: { 
+			IonCol,
+			IonRow,
+			IonGrid,
 			IonHeader, 
 			IonToolbar, 
 			IonTitle, 
@@ -79,34 +111,42 @@
 			IonModal, 
 			NewsModal,
             Header,
+			IonSpinner,
 			IonRefresher,
 			IonRefresherContent,
 		},
 		setup() {
 			const locale = localStorage.getItem('locale') ?? 'en';
 			
-            moment.locale(locale);
-            
+			moment.locale(locale);
+			
 			const newsRef   = ref<any>(null);
 			const dataModal = ref<any>({});
 			const isOpenRef = ref<boolean>(false);
-			
+			const isLoadRef = ref<boolean>(false);
+
 			const getNews = (callback: any = null) => {
+				if (!callback) isLoadRef.value = true;
+
 				axios.get('news/getAll').then((response: any) => {
 					const { data } = response;
 
 					newsRef.value = data.news;
 
 					if (callback) callback();
-				}).catch((error: any) => {
+					isLoadRef.value = false;
+				}).catch((error: any): void => {
 					const { response } = error;
+
+					if (callback) callback();
+					
+					isLoadRef.value = false;
 
 					if (response.data.errorType == 'empty_data') {
 						newsRef.value = null;
 					} else {
 						console.error(response);
 					}
-					if (callback) callback();
 				});
 			};
 
@@ -132,6 +172,7 @@
                 moment,
 				newsRef,
 				isOpenRef, 
+				isLoadRef,
 				dataModal,
 				doRefresh,
 				closeModal, 
@@ -140,3 +181,26 @@
 		}
 	});
 </script>
+
+<style scoped>
+	.bd-placeholder-img-lg {
+		font-size: calc(1.475rem + 2.7vw);
+	}
+
+	.bd-placeholder-img {
+		font-size: 1.125rem;
+		text-anchor: middle;
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		user-select: none;
+	}
+
+	.img-fluid {
+		max-width: 100%;
+		height: 200px;
+	}
+
+	ion-col {
+		--ion-grid-column-padding: 0;
+	}
+</style>

@@ -7,15 +7,15 @@
 					<h3><p v-html="messagesRef.type" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
-			<ion-item lines="full">
-				<ion-radio-group v-model="formRef.type">
-					<ion-item v-if="social != 'twitch'">
+			<ion-item lines="none">
+				<ion-radio-group mode="md" v-model="formRef.type">
+					<ion-item v-if="social != 'twitch'" lines="none">
 						<ion-label>{{ t('message.likes') }}</ion-label>
-						<ion-radio slot="start" value="like"></ion-radio>
+						<ion-radio mode="md" slot="start" value="like"></ion-radio>
 					</ion-item>
 					<ion-item lines="none">
 						<ion-label>{{ t('message.subscribers') }}</ion-label>
-						<ion-radio slot="start" value="subs"></ion-radio>
+						<ion-radio mode="md" slot="start" value="subs"></ion-radio>
 					</ion-item>
 				</ion-radio-group>
 			</ion-item>
@@ -25,8 +25,8 @@
 					<h3><p v-html="messagesRef.link" class="input-error"></p></h3>
 				</ion-label>
 			</ion-list-header>
-			<ion-item lines="full">
-				<ion-input placeholder="@userName" v-model="formRef.link"></ion-input>
+			<ion-item lines="none">
+				<ion-input class="custom" placeholder="@userName" v-model="formRef.link"></ion-input>
 			</ion-item>
 			<ion-list-header>
 				<ion-label>
@@ -41,18 +41,18 @@
 					<ion-label slot="end">10000</ion-label>
 				</ion-range>
 			</ion-item>
-			<ion-item lines="full">
+			<ion-item lines="none">
 				<ion-label position="stacked">{{ t('message.or_enter') }}</ion-label>
-				<ion-input type="number" v-model="formRef.quantity"></ion-input>
+				<ion-input class="custom" type="number" v-model="formRef.quantity"></ion-input>
 			</ion-item>
 			<ion-item lines="none">
 				<ion-label>{{ totalString }}</ion-label>
-				<ion-button @click="loadAd" slot="end" shape="round">
+				<ion-button v-if="false" @click="loadAd" slot="end" shape="round">
 					+30 {{ t('message.coin', 30) }}
 				</ion-button>
 			</ion-item>
 			<div class="form-button">
-				<ion-button @click="makeOrder" size="default" expand="full" shape="round">{{ t('message.buy') }}</ion-button>
+				<ion-button disabled @click="makeOrder" size="default" expand="full" shape="round" color="success">{{ t('message.buy') }}</ion-button>
 			</div>
 		</ion-list>
 		<ion-alert

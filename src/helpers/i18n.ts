@@ -25,11 +25,11 @@ const messages = {
 			accept_and_continue: "Accept and continue"
 		},
 		socials: {
-			likee: "Likee",
-			twitch: "Twitch",
-			tiktok: "Tiktok",
+			likee: "Like",
+			twitch: "Twi4",
+			tiktok: "Tiktoc",
 			youtube: "Youtube",
-			instagram: "Instagram"
+			instagram: "Insta"
 		}
 	},
 	ru: {
@@ -54,11 +54,11 @@ const messages = {
 			coin: "0 коинов | {coin} коин | {coin} коина | {coin} коинов"
 		},
 		socials: {
-			likee: "Лайкии",
-			twitch: "Твич",
-			tiktok: "Тик-ток",
+			likee: "Лайки",
+			twitch: "Тви4",
+			tiktok: "Тиkтоc",
 			youtube: "Ютуб",
-			instagram: "Инстаграм"
+			instagram: "Инста"
 		}
 	}
 };

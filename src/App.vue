@@ -1,6 +1,6 @@
 <template>
 	<ion-app>
-		<ion-menu side="start" type="overlay" menu-id="orders" content-id="main">
+		<ion-menu side="start" type="push" menu-id="orders" content-id="main">
 			<ion-header>
 				<ion-toolbar>
 					<ion-title>{{ $t('message.orders') }}</ion-title>
@@ -135,7 +135,7 @@
 		IonSegmentButton,
 	} from '@ionic/vue';
 	import axios from 'axios';
-	import { defineComponent } from 'vue';
+	import { defineComponent, onMounted } from 'vue';
 	import { 
 		Plugins,
 		PushNotification,
@@ -182,54 +182,50 @@
 				console.log('log:', data);
 			},
 			async getOrders() {
-				this.$http.get('https://rwinsdice.xyz/sanctum/csrf-cookie').then(csrfResponse => {
-					console.log(csrfResponse);
+				this.$http.get('order/getAll').then(response => {
+					const { data } = response;
 
-					this.$http.get('order/getAll').then(response => {
+					this.activeOrders = data.orders.filter((item: any) => {
+						if (item.done !== true && item !== false) {
+							return true;
+						}
+					});
+
+					this.historyOrders = data.orders.filter((item: any) => {
+						if (item.done === true || item === false) {
+							return true;
+						}
+					});
+				}).catch(async(error) => {
+					const { response } = error;
+
+					if (response.status == 401) {
+						this.$router.replace({name: 'Error', params: {
+							code: response.status,
+							message: response.statusText
+						}});
+					} else if (response.data) {
 						const { data } = response;
 
-						this.activeOrders = data.orders.filter((item: any) => {
-							if (item.done !== true && item !== false) {
-								return true;
-							}
-						});
-
-						this.historyOrders = data.orders.filter((item: any) => {
-							if (item.done === true || item === false) {
-								return true;
-							}
-						});
-					}).catch(async(error) => {
-						const { response } = error;
-
-						if (response.status == 401) {
-							this.$router.replace({name: 'Error', params: {
-								code: response.status,
-								message: response.statusText
-							}});
-						} else if (response.data) {
-							const { data } = response;
-
-							if (data.errorType == 'empty_data') {
-								this.activeOrders = [];
-								this.historyOrders = [];
-							} else if (data.message) {
-								const alert = await alertController
-									.create({
-										header: 'Error',
-										message: `<p class="text-danger">${data.message}</p>`,
-									});
-								return alert.present();
-							}
-						} else {
+						if (data.errorType == 'empty_data') {
+							this.activeOrders = [];
+							this.historyOrders = [];
+						} else if (data.message) {
 							const alert = await alertController
 								.create({
 									header: 'Error',
-									message: `<p class="text-danger">Server error.</p>`,
+									message: `<p class="text-danger">${data.message}</p>`,
 								});
 							return alert.present();
 						}
-					});
+					} else {
+						const alert = await alertController
+							.create({
+								header: 'Error',
+								message: `<p class="text-danger">Server error.</p>`,
+							});
+						return alert.present();
+					}
 				});
 			},
 			repeatOrder(order: any) {
@@ -276,14 +272,12 @@
 				}
 			);
 
-			// Show us the notification payload if the app is open on our device
 			PushNotifications.addListener('pushNotificationReceived',
 				(notification: PushNotification) => {
 					console.log('notifyRecevied:', JSON.stringify(notification))
 				}
 			);
 
-			// Method called when tapping on a notification
 			PushNotifications.addListener('pushNotificationActionPerformed',
 				(notification: PushNotificationActionPerformed) => {
 					console.log('notifyPerformed:', JSON.stringify(notification))
@@ -292,6 +286,25 @@
 		},
 		setup() {
 			const router = useRouter();
+
+			onMounted(() => {
+				const theme = localStorage.getItem('theme') ?? 'light';
+				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
+				const newColorScheme = prefersDark.matches ? "dark" : "light";
+				
+				console.log(newColorScheme, theme, prefersDark);
+				
+				localStorage.setItem('theme', theme);
+				document.body.classList.toggle('dark', theme == 'dark');
+
+				prefersDark.addEventListener('change', e => {
+					const newColorScheme = e.matches ? "dark" : "light";
+
+					localStorage.setItem('theme', newColorScheme);
+
+					document.body.classList.toggle('dark', newColorScheme == 'dark');
+				});
+			});
 
 			const isAcceptedPrivacyAndTerms = localStorage.getItem(`isAcceptedPrivacyAndPerms`) ?? false;
 

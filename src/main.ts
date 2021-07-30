@@ -34,7 +34,7 @@ import '@ionic/vue/css/display.css';
 import './theme/variables.css';
 
 axios.defaults.withCredentials = true;
-axios.defaults.baseURL = "https://rwinsdice.xyz/api/";
+axios.defaults.baseURL = "https://socfollowers.fun/api/";
 axios.defaults.headers.common['Accept'] = 'application/json';
 axios.defaults.headers.common['VerifyKey'] = 'Qazxsw102';
 axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
@@ -83,6 +83,8 @@ const getCurrentPosition = () => {
 
 	getLocale = getLocale.split('-')[0];
 	
+	axios.defaults.headers.common['userLocale'] = getLocale;
+
 	localStorage.setItem('locale', getLocale);
 
 	const getLocales = sessionStorage.getItem(`locale.${getLocale}`) ?? false;
@@ -118,7 +120,7 @@ router.isReady().then(async(): Promise<void> => {
 	}, function (error): Promise<never> {
 		const { response } = error;
 
-		if (response && response.statusText == 'Network Error') {
+		if (response && response.statusText == 'Network Error1') {
 			router.replace({
 				name: 'Error', 
 				params: {

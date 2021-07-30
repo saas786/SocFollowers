@@ -8,9 +8,9 @@ const routes: Array<RouteRecordRaw> = [
 		redirect: '/tabs/news'
 	},
 	{
-		name: 'Products',
-		path: '/products',
-		component: () => import('@/views/Products.vue')
+		name: 'Settings',
+		path: '/settings',
+		component: () => import('@/views/Settings.vue')
 	},
 	{
 		name: 'PrivacyAndTerms',
@@ -36,25 +36,10 @@ const routes: Array<RouteRecordRaw> = [
 				component: () => import('@/views/News.vue')
 			},
 			{
-				path: 'tiktok',
-				name: 'tiktok',
-				component: () => import('@/views/Tiktok.vue')
+				name: 'Main',
+				path: 'main/:type',
+				component: () => import('@/views/Main.vue')
 			},
-			{
-				path: 'instagram',
-				name: 'instagram',
-				component: () => import('@/views/Instagram.vue')
-			},
-			{
-				path: 'twitch',
-				name: 'twitch',
-				component: () => import('@/views/Twitch.vue')
-			},
-			{
-				path: 'likee',
-				name: 'likee',
-				component: () => import('@/views/Likee.vue')
-			}
 		]
 	}
 ]

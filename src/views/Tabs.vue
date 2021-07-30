@@ -2,30 +2,14 @@
 	<ion-page>
 		<ion-tabs @ionTabsDidChange="afterTabChange">
 			<ion-tab-bar slot="bottom">
-				<ion-tab-button tab="tiktok" href="/tabs/tiktok">
-					<ion-icon :icon="logoTiktok" />
-					<ion-label>{{ $t('socials.tiktok') }}</ion-label>
-				</ion-tab-button>
-				<ion-tab-button tab="instagram" href="/tabs/instagram">
-					<ion-icon :icon="logoInstagram" />
-					<ion-label>{{ $t('socials.instagram') }}</ion-label>
-				</ion-tab-button>
 				<ion-tab-button tab="news" href="/tabs/news">
-					<ion-icon :icon="newspaper" />
+					<ion-icon icon="/assets/news.svg"></ion-icon>
+					<ion-icon v-if="false" :icon="newspaper" />
 					<ion-label>{{ $t('message.news') }}</ion-label>
 				</ion-tab-button>
-				<ion-tab-button tab="twitch" href="/tabs/twitch">
-					<ion-icon :icon="logoTwitch" />
-					<ion-label>{{ $t('socials.twitch') }}</ion-label>
-				</ion-tab-button>
-				<ion-tab-button tab="likee" href="/tabs/likee">
-					<template v-if="isLikeeRef">
-						<ion-icon src="/assets/icon/likee.svg" />
-					</template>
-					<template v-else>
-						<ion-icon :icon="heart" />
-					</template>
-					<ion-label>{{ $t('socials.likee') }}</ion-label>
+				<ion-tab-button tab="main" href="/tabs/main/tiktok">
+					<ion-icon :icon="homeOutline" />
+					<ion-label>{{ $t('message.main') }}</ion-label>
 				</ion-tab-button>
 			</ion-tab-bar>
 		</ion-tabs>
@@ -34,7 +18,7 @@
 
 <script lang="ts">
 	import { IonTabBar, IonTabButton, IonTabs, IonLabel, IonIcon, IonPage } from '@ionic/vue';
-	import { newspaper, logoInstagram, logoTwitch, logoTiktok, heart } from 'ionicons/icons';
+	import { newspaper, people, homeOutline } from 'ionicons/icons';
 	import { defineComponent, ref } from 'vue';
 
 	export default defineComponent({
@@ -53,43 +37,17 @@
 
 			return {
 				afterTabChange,
+				homeOutline,
 				isLikeeRef,
 				newspaper,
-				logoInstagram,
-				logoTwitch,
-				logoTiktok,
-				heart
+				people,
 			}
 		}
 	});
 </script>
 
 <style>
-	ion-tab-button#tab-button-youtube {
-		--color-selected: red;
-	}
-
-	ion-tab-button#tab-button-twitch {
-		--color-selected: #6441a5;
-	}
-
-	ion-tab-button#tab-button-instagram {
-		--color-selected: #5851DB;
-	}
-
-	@media (prefers-color-scheme: light) {
-		ion-tab-button#tab-button-tiktok {
-			--color-selected: #000;
-		}
-	}
-
-	@media (prefers-color-scheme: dark) {
-		ion-tab-button#tab-button-tiktok {
-			--color-selected: #4de8f4;
-		}
-	}
-		
-	ion-tab-button#tab-button-likee {
-		--color-selected: #ff784b;
+	ion-tab-button.tab-selected ion-icon {
+		filter: invert(45%) sepia(53%) saturate(6041%) hue-rotate(211deg) brightness(111%) contrast(100%);
 	}
 </style>
