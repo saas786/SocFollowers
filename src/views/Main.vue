@@ -7,7 +7,14 @@
 					<ion-title size="large">{{ $t('socials.' + type) }}</ion-title>
 				</ion-toolbar>
 			</ion-header>
-			<MakeOrder :key="type" :title="$t('socials.' + type)" />
+			<ion-grid>
+				<ion-row class="d-flex ion-justify-content-center">
+					<ion-col size-xs="12" size-sm="11" size-md="10" size-lg="8" size-xl="6">
+						<MakeOrder :key="type" :title="$t('socials.' + type)" />
+					</ion-col>
+				</ion-row>
+			</ion-grid>
+			
 		</ion-content>
 	</ion-page>
 </template>
@@ -23,10 +30,10 @@
 		name: 'Main',
 		components: { Header, MakeOrder, IonPage, IonHeader, IonToolbar, IonTitle, IonContent },
 		setup() {
-			const route = useRoute();
+			const { path } = useRoute();
 
 			return {
-				type: route.params?.type
+				type: path.replace(/\/main\//i, '')
 			}
 		}
 	});

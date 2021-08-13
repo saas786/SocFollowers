@@ -12,7 +12,7 @@
         <!-- Sample AdMob app ID: ca-app-pub-7650228313887885~1049862177 -->
         <meta-data
             android:name="com.google.android.gms.ads.APPLICATION_ID"
-            android:value="ca-app-pub-7650228313887885~1049862177"/>
+            android:value="@string/admob_app_id"/>
 
         <activity
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|locale|smallestScreenSize|screenLayout|uiMode"
@@ -47,21 +47,29 @@
     </application>
 
     <!-- Permissions -->
-
     <uses-permission android:name="android.permission.INTERNET" />
-    <!-- Camera, Photos, input file -->
+
+    <!-- Camera, Photos, input file 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    -->
+
     <!-- Geolocation API -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.location.gps" />
+
     <!-- Network API -->
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- Navigator.getUserMedia -->
-    <!-- Video -->
+
+    <!-- Billing -->
+    <uses-permission android:name="com.android.vending.BILLING" />
+
+    <!-- Video 
     <uses-permission android:name="android.permission.CAMERA" />
-    <!-- Audio -->
+
+    <!-- Audio 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    -->
 </manifest>

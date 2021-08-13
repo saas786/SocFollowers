@@ -23,6 +23,26 @@ const routes: Array<RouteRecordRaw> = [
 		component: () => import('@/views/Error.vue')
 	},
 	{
+		name: 'Likee',
+		path: '/main/likee',
+		component: () => import('@/views/Main.vue')
+	},
+	{
+		name: 'Tiktok',
+		path: '/main/tiktok',
+		component: () => import('@/views/Main.vue')
+	},
+	{
+		name: 'Instagram',
+		path: '/main/instagram',
+		component: () => import('@/views/Main.vue')
+	},
+	{
+		name: 'Twitch',
+		path: '/main/twitch',
+		component: () => import('@/views/Main.vue')
+	},
+	{
 		path: '/tabs/',
 		component: Tabs,
 		children: [
@@ -35,11 +55,11 @@ const routes: Array<RouteRecordRaw> = [
 				path: 'news',
 				component: () => import('@/views/News.vue')
 			},
-			{
+			/*{
 				name: 'Main',
 				path: 'main/:type',
 				component: () => import('@/views/Main.vue')
-			},
+			},*/
 		]
 	}
 ]

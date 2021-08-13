@@ -43,7 +43,7 @@
 									class="card-image"
 									:style="{backgroundImage: 'url(' + news.img + ')'}"
 								></div>
-								<svg v-else class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Placeholder: Фото УК" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">Фото не указано</text></svg>
+								<svg v-else class="bd-placeholder-img bd-placeholder-img-lg img-fluid" width="100%" height="200" xmlns="http://www.w3.org/2000/svg" role="img" preserveAspectRatio="xMidYMid slice" focusable="false"><title>Placeholder</title><rect width="100%" height="100%" fill="#868e96"></rect><text x="50%" y="50%" fill="#dee2e6" dy=".3em">{{ $t('message.empty_photo') }}</text></svg>
 								<ion-card-header>
 									<ion-card-title>{{ locale == 'ru' && news.title_ru !== null ? news.title_ru : news.title }}</ion-card-title>
 								</ion-card-header>

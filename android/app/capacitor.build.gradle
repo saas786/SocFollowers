@@ -9,12 +9,17 @@ android {
 
 apply from: "../capacitor-cordova-android-plugins/cordova.variables.gradle"
 dependencies {
+    implementation project(':capacitor-community-admob')
     implementation project(':capacitor-community-fcm')
     implementation project(':capacitor-community-stripe')
+    implementation project(':capacitor-device')
+    implementation project(':capacitor-geolocation')
+    implementation project(':capacitor-local-notifications')
+    implementation project(':capacitor-push-notifications')
     implementation project(':capacitor-admob')
     implementation "com.google.android.gms:play-services-base:11.0.4"
     implementation "com.google.android.gms:play-services-ads:11.0.4"
-    implementation "com.android.billingclient:billing:3.0.0"
+    implementation "com.android.billingclient:billing:3.0.3"
 }
 
 

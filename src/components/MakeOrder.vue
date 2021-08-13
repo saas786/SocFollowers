@@ -3,6 +3,20 @@
 		<ion-list>
 			<ion-list-header>
 				<ion-label>
+					<h1><b>{{ t('message.social_net') }}</b></h1>
+					<h3><p v-html="messagesRef.social" class="input-error"></p></h3>
+				</ion-label>
+			</ion-list-header>
+			<ion-item lines="none">
+				<ion-select @ionChange="onSelectChange" v-model="formRef.social" interface="popover">
+					<ion-select-option value="tiktok">{{ t('socials.tiktok') }}</ion-select-option>
+					<ion-select-option value="instagram">{{ t('socials.instagram') }}</ion-select-option>
+					<ion-select-option value="likee">{{ t('socials.likee') }}</ion-select-option>
+					<ion-select-option value="twitch">{{ t('socials.twitch') }}</ion-select-option>
+				</ion-select>
+			</ion-item>
+			<ion-list-header>
+				<ion-label>
 					<h1><b>{{ t('message.type_of_cheat') }}</b></h1>
 					<h3><p v-html="messagesRef.type" class="input-error"></p></h3>
 				</ion-label>
@@ -47,12 +61,12 @@
 			</ion-item>
 			<ion-item lines="none">
 				<ion-label>{{ totalString }}</ion-label>
-				<ion-button v-if="false" @click="loadAd" slot="end" shape="round">
+				<ion-button @click="loadAd" slot="end" shape="round">
 					+30 {{ t('message.coin', 30) }}
 				</ion-button>
 			</ion-item>
 			<div class="form-button">
-				<ion-button disabled @click="makeOrder" size="default" expand="full" shape="round" color="success">{{ t('message.buy') }}</ion-button>
+				<ion-button @click="makeOrder" size="default" expand="full" shape="round" color="krayola">{{ t('message.buy') }}</ion-button>
 			</div>
 		</ion-list>
 		<ion-alert
@@ -60,7 +74,7 @@
 			header="Success"
 			:message="messageRef"
 			:buttons="['OK']"
-			@onDidDismiss="setOpen(false)"
+			@didDismiss="setOpen(false)"
 		>
 		</ion-alert>
 	</div>
@@ -75,20 +89,35 @@
 		IonItem,
 		IonAlert,
 		IonRadio,
+		IonSelect,
 		IonButton,
 		isPlatform,
 		IonRadioGroup,
 		IonListHeader,
 		alertController,
+		IonSelectOption,
 	} from '@ionic/vue';
 	
-	import axios from 'axios';
-	import store from '@/store';
-	import { defineComponent, ref, watchEffect } from 'vue';
-	import { AdOptions } from 'capacitor-admob';
-	import { Plugins } from '@capacitor/core';
-	import { useRoute } from 'vue-router';
+	import { 
+		defineComponent, 
+		watchEffect,
+		ref, 
+		
+	} from 'vue';
+
+	import { 
+		AdMob, 
+		RewardAdOptions, 
+		AdLoadInfo, 
+		RewardAdPluginEvents, 
+		AdMobRewardItem, 
+    AdMobError
+	} from '@capacitor-community/admob';
+
+	import { useRoute, useRouter } from 'vue-router';
 	import { useI18n } from "vue-i18n";
+	import store from '@/store';
+	import axios from 'axios';
 
 	export default defineComponent({
 		name: 'MakeOrder',
@@ -101,18 +130,19 @@
 			IonAlert,
 			IonRadio,
 			IonButton,
+			IonSelect,
 			IonRadioGroup,
 			IonListHeader,
-			
+			IonSelectOption,
 		},
 		setup() {
 			const { t } = useI18n();
-			const { AdMob } = Plugins;
-			const { params, name } = useRoute();
-			
-			const social: any = name;
+			const router = useRouter();
+			const { params, path } = useRoute();
+			const social: any = path.replace(/\/main\//i, '') ?? 'tiktok';
 			const min = social == 'twitch' ? 100 : 20;
 
+			const user = store.getters.getUserData;
 			const formRef = ref<any>({
 				type: (social != 'twitch' ? 'like' : 'subs'),
 				count: min,
@@ -120,7 +150,6 @@
 				quantity: min,
 			});
 			const totalRef = ref(0.00);
-			
 			const isOpenRef = ref(false);
 			const priceRef = ref<any>(0);
 			const pricesRef = ref<any>({
@@ -219,54 +248,80 @@
 				});
 			};
 
+			AdMob.addListener(RewardAdPluginEvents.Loaded, (info: AdLoadInfo) => {
+				/* eslint-disable no-console */
+				console.log('Subscribe prepared rewardVideo:', info);
+			});
+
+			AdMob.addListener(RewardAdPluginEvents.Rewarded, (rewardItem: AdMobRewardItem) => {
+				axios.post('/admob/rewardCheck', {
+					user: user
+				}).then((response) => {
+					/* eslint-disable no-console */
+					console.log("rewardCheck:", response);
+				}).catch((error) => {
+					/* eslint-disable no-console */
+					console.log("Error check:", error.response);
+				});
+				/* eslint-disable no-console */
+				console.log('rewardItem:', rewardItem);
+			});
+
+			AdMob.addListener(RewardAdPluginEvents.FailedToShow, (error: AdMobError) => {
+				/* eslint-disable no-console */
+				console.error('AdMob Error:', error);
+			});
+
+			AdMob.addListener(RewardAdPluginEvents.Dismissed, () => {
+				/* eslint-disable no-console */
+				console.log('Dismissed');
+			});
+
 			const loadAd = async() => {
-				if (isPlatform('android')) {
-					const loadAd = () => {
-						const options: AdOptions = {
-							adId: 'ca-app-pub-7650228313887885/4950127471',
-						}
-						AdMob.prepareRewardVideoAd(options).then(
-							(result: any) => {
-								console.log('Prepared rewardVideo:', JSON.stringify(result));
+				const options: RewardAdOptions = {
+					adId: 'ca-app-pub-7650228313887885/4950127471',
+					// isTesting: true,
+					npa: true,
+					ssv: {
+						userId: user.id
+					}
+				};
 
-								AdMob.showRewardVideoAd().then(
-									(value: any) => {
-										console.log('Showed ad:', JSON.stringify(value));
-									},
-									(error: any) => {
-										console.error('Admob Error:', JSON.stringify(error));
-									}
-								);
-							}, async(error: any) => {
-								if (error == 'AdMob does not have web implementation.') {
-									const alert = await alertController
-										.create({
-											header: 'Error',
-											message: `<p class="text-danger">This feature is only available for Android</p>`,
-										});
-									return alert.present();
-								}
-								console.error('Prepared Error:', JSON.stringify(error));
-							}
-						);
-					};
-					loadAd();
+				AdMob.prepareRewardVideoAd(options).then((response) => {
+					/* eslint-disable no-console */
+					console.log("preparedAd:", response);
 
-					AdMob.addListener('onAdFailedToLoad', async (error: any) => {
-						console.error('AdFiledLoad:', JSON.stringify(error));
+					AdMob.showRewardVideoAd().then((response) => {
+						/* eslint-disable no-console */
+						console.log("showRewardItem:", response);
 					});
+				});
 
-					AdMob.addListener('onRewarded', async (result: any) => {
+				if (isPlatform('android')) {
+					
+
+						/*if (error == 'AdMob does not have web implementation.') {
+								const alert = await alertController
+									.create({
+										header: 'Error',
+										message: `<p class="text-danger">This feature is only available for Android</p>`,
+									});
+								return alert.present();
+							}
+							console.error('Prepared Error:', JSON.stringify(error));*/
+					/*AdMob.addListener('onRewarded', async (result: any) => {
 						axios.post('/user/updateTime', {time: (Math.floor(Date.now() / 1000) + 1)}).then((response: any) => {
 							console.log('Set time', JSON.stringify(response));
 						});
 						store.dispatch('updateUser');
-					});
+					});*/
+
+					
 				} else {
 					const alert = await alertController
 						.create({
 							header: 'Error',
-							message: `<p class="text-danger">This feature is only available for Android</p>`,
+							message: `<p class="text-danger">${t('message.only_android')}</p>`,
 						});
 					return alert.present();
 				}
@@ -287,9 +342,13 @@
 				totalString.value = t('message.total') + ': ' + totalRef.value + ' ' + t('message.coin', totalRef.value);
 			});
 
-			if (params.type) {
-				formRef.value = params;
+			if (params.reorder) {
+				// formRef.value = params;
 			}
+
+			const onSelectChange = (e: any) => {
+				router.replace({ path: `/main/${e.target.value}` });
+			};
 
 			return {
 				t,
@@ -306,6 +365,7 @@
 				messageRef,
 				messagesRef,
 				totalString,
+				onSelectChange
 			};
 		}
 	});
@@ -313,10 +373,10 @@
 
 <style type="text/css">
 	.form-button {
-		padding-top: var(--ion-padding, 16px);
+		padding-top: 2px;
 		padding-left: var(--ion-padding, 16px);
 		padding-right: var(--ion-padding, 16px);
-		padding-bottom: var(--ion-padding, 10px);
+		padding-bottom: 0; /*var(--ion-padding, 10px);*/
 	}
 
 	.input-error {

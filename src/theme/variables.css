@@ -258,8 +258,8 @@ http://ionicframework.com/docs/theming/ */
 }
 
 .card-image {
-	height: 200px;
-	border-radius: 0.30rem 0 0;
+    height: 200px;
+    border-radius: .30rem;
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center center;

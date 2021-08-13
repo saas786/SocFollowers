@@ -2,11 +2,26 @@
 include ':capacitor-android'
 project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
 
+include ':capacitor-community-admob'
+project(':capacitor-community-admob').projectDir = new File('../node_modules/@capacitor-community/admob/android')
+
 include ':capacitor-community-fcm'
 project(':capacitor-community-fcm').projectDir = new File('../node_modules/@capacitor-community/fcm/android')
 
 include ':capacitor-community-stripe'
 project(':capacitor-community-stripe').projectDir = new File('../node_modules/@capacitor-community/stripe/android')
+
+include ':capacitor-device'
+project(':capacitor-device').projectDir = new File('../node_modules/@capacitor/device/android')
+
+include ':capacitor-geolocation'
+project(':capacitor-geolocation').projectDir = new File('../node_modules/@capacitor/geolocation/android')
+
+include ':capacitor-local-notifications'
+project(':capacitor-local-notifications').projectDir = new File('../node_modules/@capacitor/local-notifications/android')
+
+include ':capacitor-push-notifications'
+project(':capacitor-push-notifications').projectDir = new File('../node_modules/@capacitor/push-notifications/android')
 
 include ':capacitor-admob'
 project(':capacitor-admob').projectDir = new File('../node_modules/capacitor-admob/android')

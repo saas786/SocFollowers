@@ -40,11 +40,11 @@
 								<ion-label color="danger">{{ $t('message.order_not_loaded') }}</ion-label>
 							</template>
 							<template v-else>
-								<ion-avatar slot="start">
+								<ion-avatar v-if="false" slot="start">
 									<img :src="'/assets/logos/' + order.social + '.png'">
 								</ion-avatar>
 								<ion-label>
-									<h2 v-up-first-letter>{{ order.social }}</h2>
+									<h2 v-up-letter="0">{{ $t('socials.' + order.social) }}</h2>
 									<h3 class="text-muted">{{ order.created_at }}</h3>
 									<ion-button fill="clear">
 										<ion-icon
@@ -79,11 +79,11 @@
 								<ion-label color="danger">{{ $t('message.order_not_loaded') }}</ion-label>
 							</template>
 							<template v-else>
-								<ion-avatar slot="start">
+								<ion-avatar v-if="false" slot="start">
 									<img :src="'/assets/logos/' + order.social + '.png'">
 								</ion-avatar>
 								<ion-label>
-									<h2 v-up-first-letter>{{ order.social }}</h2>
+									<h2 v-up-letter>{{ $t('socials.' + order.social) }}</h2>
 									<h3 class="text-muted">{{ order.created_at }}</h3>
 									<ion-button fill="clear">
 										<ion-icon
@@ -134,22 +134,17 @@
 		alertController,
 		IonSegmentButton,
 	} from '@ionic/vue';
-	import axios from 'axios';
 	import { defineComponent, onMounted } from 'vue';
-	import { 
-		Plugins,
-		PushNotification,
-		PushNotificationToken,
-		PushNotificationActionPerformed
-	} from '@capacitor/core';
 	import { 
 		people, 
 		heart, 
 		refresh, 
 		cashOutline
 	} from 'ionicons/icons';
-	import store from './store';
+	// import axios from 'axios';
+	// import moment from 'moment';
 	import { useRouter } from 'vue-router';
+	import { Stripe } from '@capacitor-community/stripe';
 
 	export default defineComponent({
 		name: 'App',
@@ -174,13 +169,9 @@
 		data: () => ({
 			activeOrders: [],
 			historyOrders: [],
-			segment: 'active',
-			user: {},
+			segment: 'active'
 		}),
 		methods: {
-			log(data: any) {
-				console.log('log:', data);
-			},
 			async getOrders() {
 				this.$http.get('order/getAll').then(response => {
 					const { data } = response;
@@ -240,12 +231,11 @@
 			}
 		},
 		created() {
-			const { PushNotifications } = Plugins;
-
-			this.user = store.getters.getUserData;
+			// const { PushNotifications } = Plugins;
 
 			this.getOrders();
-		
+			
+			/*
 			PushNotifications.requestPermission().then((result: any) => {
 				if (result.granted) {
 					PushNotifications.register();
@@ -283,15 +273,21 @@
 					console.log('notifyPerformed:', JSON.stringify(notification))
 				}
 			);
+			*/
 		},
 		setup() {
 			const router = useRouter();
+
+			Stripe.initialize({
+				publishableKey: 'pk_test_51IU9pVECieeLlFGwYhtzGTIJA4qsaT3NAOjIOcQGYT9rJ2oFQXryhu4SNHgUQV1tg6aW2gli1XPjakiIyZQcstyI000hN7etHj'
+			});
 
 			onMounted(() => {
 				const theme = localStorage.getItem('theme') ?? 'light';
 				const prefersDark = window.matchMedia('(prefers-color-scheme: dark)');
 				const newColorScheme = prefersDark.matches ? "dark" : "light";
 				
+				/* eslint-disable no-console */
 				console.log(newColorScheme, theme, prefersDark);
 				
 				localStorage.setItem('theme', theme);
@@ -309,7 +305,7 @@
 			const isAcceptedPrivacyAndTerms = localStorage.getItem(`isAcceptedPrivacyAndPerms`) ?? false;
 
 			if (!isAcceptedPrivacyAndTerms) {
-				router.push({name: 'PrivacyAndTerms'});
+				// router.push({ name: 'PrivacyAndTerms' });
 			}
 			return { people, heart, refresh, cashOutline };
 		}

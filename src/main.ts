@@ -2,17 +2,23 @@ import { createApp } from 'vue'
 import App from './App.vue'
 import router from './router';
 
+// import LogRocket from 'logrocket';
+// LogRocket.init('z68ai9/socfollowers');
 
+/* eslint-disable */
 import axios from 'axios';
 import store from "@/store";
 import VueAxios from 'vue-axios';
 
-/* import helpers */
 import i18n from "@/helpers/i18n";
-
 import { IonicVue } from '@ionic/vue';
-import { Plugins } from '@capacitor/core';
+import { Geolocation } from '@capacitor/geolocation';
+import { Device } from '@capacitor/device';
+import { AdMob } from '@capacitor-community/admob';
+// import { LocalNotification } from '@capacitor/local-notifications';
+
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
+import { defineCustomElements as defineStripeElements } from '@stripe-elements/stripe-elements/loader';
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/vue/css/core.css';
@@ -52,15 +58,13 @@ const app = createApp(App)
 	.use(store)
 	.use(i18n);
 
-app.directive('up-first-letter', {
+app.directive('up-letter', {
 	beforeMount(el, binding, vnode) {
 		const string = vnode.el.innerText;
 
-		el.innerText = string.charAt(0).toUpperCase() + string.slice(1);
+		el.innerText = string.charAt(binding.value ?? 0).toUpperCase() + string.slice(binding.value > 0 ? binding.value+1 : 1);
 	}
 });
-
-const { Device, AdMob, Geolocation } = Plugins;
 
 const getCurrentPosition = () => {
 	Geolocation.getCurrentPosition().then((result: any) => {
@@ -113,7 +117,9 @@ const getCurrentPosition = () => {
 })();
 
 router.isReady().then(async(): Promise<void> => {
-	AdMob.initialize('ca-app-pub-7650228313887885~1049862177');
+	AdMob.initialize({
+		requestTrackingAuthorization: true,
+	});// 'ca-app-pub-7650228313887885~1049862177');
 	
 	axios.interceptors.response.use(function (response) {
 		return response;
@@ -151,7 +157,7 @@ router.isReady().then(async(): Promise<void> => {
 		return Promise.reject(error);
 	});
 
-	const info = await Device.getInfo();
+	const info = await Device.getId();
 	const token = localStorage.getItem('token');
 	const locale = localStorage.getItem('locale') ?? 'en';
 
@@ -185,5 +191,6 @@ router.isReady().then(async(): Promise<void> => {
 			app.mount('#app');
 		});
 	}
+	defineStripeElements(window);
 	defineCustomElements(window);
 });

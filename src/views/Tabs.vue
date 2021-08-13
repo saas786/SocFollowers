@@ -7,7 +7,7 @@
 					<ion-icon v-if="false" :icon="newspaper" />
 					<ion-label>{{ $t('message.news') }}</ion-label>
 				</ion-tab-button>
-				<ion-tab-button tab="main" href="/tabs/main/tiktok">
+				<ion-tab-button tab="main" href="/main/tiktok">
 					<ion-icon :icon="homeOutline" />
 					<ion-label>{{ $t('message.main') }}</ion-label>
 				</ion-tab-button>
