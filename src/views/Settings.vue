@@ -21,37 +21,37 @@
 					</ion-item>
 				</ion-card>
 				<ion-card v-if="isOpenPayRef">
-					<ion-item lines="full">
+					<ion-item :disabled="isActiveItem" lines="full">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						<ion-input v-model="customCoins" :placeholder="$t('message.your_quantity')" type="number"></ion-input>
 						<ion-icon slot="end" @click="buyCoins" :icon="isPressedBuy ? checkmarkOutline : chevronForwardOutline" class="icon-25"></ion-icon>
 						<small>650 {{ $t('message.min') }}</small>
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(1000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(1000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 1000 + ' ' + $t('message.coin', 1000) }}
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(2000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(2000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 2000 + ' ' + $t('message.coin', 2000) }} <ion-note slot="end" color="success">+200</ion-note>
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(5000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(5000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 5000 + ' ' + $t('message.coin', 5000) }} <ion-note slot="end" color="success">+500</ion-note>
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(10000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(10000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 10000 + ' ' + $t('message.coin', 10000) }} <ion-note slot="end" color="success">+1000</ion-note>
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(20000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(20000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 20000 + ' ' + $t('message.coin', 20000) }} <ion-note slot="end" color="success">+2000</ion-note>
 					</ion-item>
-					<ion-item lines="full" @click="createPaymentSheet(50000)">
+					<ion-item :disabled="isActiveItem" lines="full" @click="createPaymentSheet(50000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{50000 + ' ' + $t('message.coin', 50000) }} <ion-note slot="end" color="success">+5000</ion-note>
 					</ion-item>
-					<ion-item lines="none" @click="createPaymentSheet(100000)">
+					<ion-item :disabled="isActiveItem" lines="none" @click="createPaymentSheet(100000)">
 						<ion-icon slot="start" src="/assets/dollar.svg" class="icon-25"></ion-icon>
 						{{ 100000 + ' ' + $t('message.coin', 100000) }} <ion-note slot="end" color="success">+10000</ion-note>
 					</ion-item>
@@ -64,6 +64,12 @@
 					</ion-item>
 				</ion-card>
 			</ion-list>
+			<ion-loading
+				:is-open="isOpenLoaderRef"
+				:message="$t('message.please_wait')"
+				@didDismiss="setOpenLoader(false)"
+			>
+			</ion-loading>
 		</ion-content>
 	</ion-page>
 </template>
@@ -84,9 +90,10 @@
 		IonButton,
 		IonToolbar,
 		IonContent,
+		IonLoading,
+
 	} from '@ionic/vue';
 	
-
 	import {
 		defineComponent, 
 		ref
@@ -123,6 +130,7 @@
 			IonToolbar,
 			IonContent,
 			IonButton,
+			IonLoading,
 
 		},
 		setup() {
@@ -136,7 +144,11 @@
 			const checkoutRef = ref(null);
 			const isOpenPayRef = ref(false);
 			const isPressedBuy = ref(false);
+			const isActiveItem = ref(false);
 			const processSheet = ref('willReady');
+
+			const isOpenLoaderRef = ref(false);
+			const setOpenLoader   = (state: boolean) => isOpenLoaderRef.value = state;
 
 			const arrProducts = ref([
 				{
@@ -144,7 +156,6 @@
 					quantity: 1
 				}
 			]);
-
 			const theme = localStorage.getItem('theme') ?? 'light';
 
 			isDarkRef.value = theme == 'dark';
@@ -157,11 +168,16 @@
 
 			Stripe.addListener(PaymentSheetEventsEnum.Loaded, () => {
 				processSheet.value = 'Ready';
+				isActiveItem.value = false;
+				setOpenLoader(false);
 
 				console.log('PaymentSheetEventsEnum.Loaded');
 			});
 
 			Stripe.addListener(PaymentSheetEventsEnum.FailedToLoad, () => {
+				isActiveItem.value = false;
+				setOpenLoader(false);
+
 				console.log('PaymentSheetEventsEnum.FailedToLoad');
 			});
 
@@ -187,18 +203,26 @@
 
 			Stripe.addListener(PaymentSheetEventsEnum.Canceled, () => {
 				processSheet.value = 'willReady';
+				isActiveItem.value = false;
+				setOpenLoader(false);
 
 				console.log('PaymentSheetEventsEnum.Canceled');
 			});
 
 			Stripe.addListener(PaymentSheetEventsEnum.Failed, () => {
 				processSheet.value = 'willReady';
+				isActiveItem.value = false;
+				setOpenLoader(false);
 
 				console.log('PaymentSheetEventsEnum.Failed');
 			});
 
 			async function createPaymentSheet(coins = 1000) {
+				isActiveItem.value = true;
+				setOpenLoader(true);
+
 				setTimeout(() => {
+					isActiveItem.value = false;
 					processSheet.value = 'willReady';
 				}, 4200);
 
@@ -218,18 +242,21 @@
 							if (processSheet.value === 'Ready') {
 								Stripe.presentPaymentSheet();
 							}
+							isActiveItem.value = false;
 							isPressedBuy.value = !isPressedBuy.value;
 						}, 500);
 					}).catch((error: any) => {
 						console.error('ErrorPay:', error);
 
+						isActiveItem.value = false;
 						isPressedBuy.value = !isPressedBuy.value;
 					});
 				}).catch((error: any): void => {
 					const { response } = error;
 					
+					isActiveItem.value = false;
 					isPressedBuy.value = !isPressedBuy.value;
-
+					
 					console.error('Error:', response);
 				});
 			}
@@ -260,9 +287,12 @@
 				isPressedBuy,
 				isOpenPayRef,
 				processSheet,
+				isActiveItem,
 				onChangeTheme,
 				personOutline,
+				setOpenLoader,
 				publishableKey: 'pk_test_51IU9pVECieeLlFGwYhtzGTIJA4qsaT3NAOjIOcQGYT9rJ2oFQXryhu4SNHgUQV1tg6aW2gli1XPjakiIyZQcstyI000hN7etHj',
+				isOpenLoaderRef,
 				checkmarkOutline,
 				createPaymentSheet,
 				presentPaymentSheet,

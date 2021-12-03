@@ -10,7 +10,7 @@
 	export default defineComponent({
 		props: ['en', 'ru'],
 		setup(props) {
-			const text = ref(null);
+			const text = ref('');
 			const langs = toRefs(props);
 			const locale = localStorage.getItem('locale') ?? 'en';
 			
