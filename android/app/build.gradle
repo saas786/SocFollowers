@@ -25,6 +25,7 @@ repositories {
 }
 
 dependencies {
+    implementation 'com.stripe:stripe-android:18.2.0'
     implementation 'com.google.firebase:firebase-core:18.0.2'
     implementation "com.google.firebase:firebase-bom:28.3.0"
     implementation fileTree(include: ['*.jar'], dir: 'libs')

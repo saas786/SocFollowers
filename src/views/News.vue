@@ -35,9 +35,9 @@
 				</ion-grid>
 			</div>
 			<ion-grid>
-					<ion-row>
-						<ion-col size-xs="12" size-sm="10" size-md="8" size-lg="6" size-xl="4" v-for="(news, i) in newsRef" v-bind:key="i">
-							<ion-card>
+					<ion-row class="ion-justify-content-center ion-align-items-center centered-content">
+						<ion-col size-xs="12" size-sm="10" size-md="8" size-lg="6" size-xl="4">
+							<ion-card v-for="(news, i) in newsRef" v-bind:key="i" :style="{ marginBottom: '20px' }">
 								<div
 									v-if="news.img"
 									class="card-image"
@@ -202,5 +202,7 @@
 
 	ion-col {
 		--ion-grid-column-padding: 0;
+		padding-bottom: 50px;
 	}
+	
 </style>

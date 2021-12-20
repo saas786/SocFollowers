@@ -1,18 +1,22 @@
 import axios from 'axios';
 import { createStore } from 'vuex';
-// import User from '@/store/models/UserModel';
+import User from '@/store/models/UserModel';
 
-export default createStore({
+interface State {
+    user: User|any;
+}
+
+export default createStore<State>({
     state: {
         user: {},
     },
     mutations: {
-        setUser(state, payload) {
+        setUser(state, payload: User) {
             state.user = payload;
         }
     },
     actions: {
-		async updateUser({ commit }) {
+		async updateUser({ commit }): Promise<void> {
 			axios.get('/user').then((response: any) => {
 				const { data } = response;
 
@@ -21,7 +25,7 @@ export default createStore({
 				commit('setUser', data);
 			});
 		},
-		getUser({ commit }) {
+		getUser({ commit }): void {
 			const json = localStorage.getItem('user');
 			const user = json ? JSON.parse(json) : false;
 		
@@ -29,7 +33,7 @@ export default createStore({
 		}
     },
     getters: {
-        getUserData(state): any {
+        getUserData(state): User {
             return state.user;
         }
     },

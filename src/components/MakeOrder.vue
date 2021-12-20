@@ -96,6 +96,7 @@
 		IonListHeader,
 		alertController,
 		IonSelectOption,
+
 	} from '@ionic/vue';
 	
 	import { 
@@ -111,7 +112,8 @@
 		AdLoadInfo, 
 		RewardAdPluginEvents, 
 		AdMobRewardItem, 
-    AdMobError
+		AdMobError,
+
 	} from '@capacitor-community/admob';
 
 	import { useRoute, useRouter } from 'vue-router';
@@ -134,6 +136,7 @@
 			IonRadioGroup,
 			IonListHeader,
 			IonSelectOption,
+
 		},
 		setup() {
 			const { t } = useI18n();
@@ -144,7 +147,7 @@
 
 			const user = store.getters.getUserData;
 			const formRef = ref<any>({
-				type: (social != 'twitch' ? 'like' : 'subs'),
+				type: params.type ? params.type : (social != 'twitch' ? 'like' : 'subs'),
 				count: min,
 				social: social,
 				quantity: min,
@@ -343,7 +346,7 @@
 			});
 
 			if (params.reorder) {
-				// formRef.value = params;
+				formRef.value = params;
 			}
 
 			const onSelectChange = (e: any) => {
@@ -383,5 +386,15 @@
 		color: #eb445a;
 		padding: 0 4px;
 		font-size: small;
+	}
+
+	body.dark #container {
+		background: rgb(28 28 28 / 61%) !important;
+		border-radius: 8px;
+		padding-bottom: 20px;
+	}
+
+	body.dark ion-item {
+		--background: rgba(0, 0, 0, 0)!important;
 	}
 </style>

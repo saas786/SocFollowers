@@ -142,9 +142,9 @@
 		cashOutline
 	} from 'ionicons/icons';
 	// import axios from 'axios';
-	// import moment from 'moment';
+	import moment from 'moment';
 	import { useRouter } from 'vue-router';
-	import { Stripe } from '@capacitor-community/stripe';
+	// import { Stripe } from '@capacitor-community/stripe';
 
 	export default defineComponent({
 		name: 'App',
@@ -176,6 +176,15 @@
 				this.$http.get('order/getAll').then(response => {
 					const { data } = response;
 
+					data.orders.map((item: any) => {
+						if (item !== false) {
+							item.created_at = new Date(item.created_at).toISOString().
+								replace(/T/, ' ').
+								replace(/\..+/, '')// moment(item.created_at);
+						}
+						return item;
+					});
+
 					this.activeOrders = data.orders.filter((item: any) => {
 						if (item.done !== true && item !== false) {
 							return true;
@@ -190,22 +199,31 @@
 				}).catch(async(error) => {
 					const { response } = error;
 
-					if (response.status == 401) {
-						this.$router.replace({name: 'Error', params: {
-							code: response.status,
-							message: response.statusText
-						}});
-					} else if (response.data) {
-						const { data } = response;
+					if (response) {
+						if(response.status == 401) {
+							this.$router.replace({name: 'Error', params: {
+								code: response.status,
+								message: response.statusText
+							}});
+						} else if (response.data) {
+							const { data } = response;
 
-						if (data.errorType == 'empty_data') {
-							this.activeOrders = [];
-							this.historyOrders = [];
-						} else if (data.message) {
+							if (data.errorType == 'empty_data') {
+								this.activeOrders = [];
+								this.historyOrders = [];
+							} else if (data.message) {
+								const alert = await alertController
+									.create({
+										header: 'Error',
+										message: `<p class="text-danger">${data.message}</p>`,
+									});
+								return alert.present();
+							}
+						} else {
 							const alert = await alertController
 								.create({
 									header: 'Error',
-									message: `<p class="text-danger">${data.message}</p>`,
+									message: `<p class="text-danger">Server error.</p>`,
 								});
 							return alert.present();
 						}
@@ -213,7 +231,7 @@
 						const alert = await alertController
 							.create({
 								header: 'Error',
-								message: `<p class="text-danger">Server error.</p>`,
+								message: `<p class="text-danger">${error.message}</p>`,
 							});
 						return alert.present();
 					}
@@ -223,10 +241,13 @@
 				menuController.enable(true, 'orders');
 				menuController.close();
 
-				this.$router.push({name: order.social, params: {
+				this.$router.push({name: order.social.charAt(0).toUpperCase() + order.social.slice(1), params: {
 					type: order.type,
 					link: order.link,
-					quantity: order.count
+					social: order.social,
+					quantity: order.count,
+					reorder: 1,
+
 				}});
 			}
 		},
@@ -278,9 +299,11 @@
 		setup() {
 			const router = useRouter();
 
+			/*
 			Stripe.initialize({
 				publishableKey: 'pk_test_51IU9pVECieeLlFGwYhtzGTIJA4qsaT3NAOjIOcQGYT9rJ2oFQXryhu4SNHgUQV1tg6aW2gli1XPjakiIyZQcstyI000hN7etHj'
 			});
+			*/
 
 			onMounted(() => {
 				const theme = localStorage.getItem('theme') ?? 'light';
@@ -307,7 +330,7 @@
 			if (!isAcceptedPrivacyAndTerms) {
 				// router.push({ name: 'PrivacyAndTerms' });
 			}
-			return { people, heart, refresh, cashOutline };
+			return { people, moment, heart, refresh, cashOutline };
 		}
 	});
 </script>

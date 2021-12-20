@@ -17,6 +17,7 @@ import { Device } from '@capacitor/device';
 import { AdMob } from '@capacitor-community/admob';
 // import { LocalNotification } from '@capacitor/local-notifications';
 
+import { Stripe } from '@capacitor-community/stripe';
 import { defineCustomElements } from '@ionic/pwa-elements/loader';
 import { defineCustomElements as defineStripeElements } from '@stripe-elements/stripe-elements/loader';
 
@@ -66,6 +67,9 @@ app.directive('up-letter', {
 	}
 });
 
+//import { StripeCheckout } from '@vue-stripe/vue-stripe';
+//app.component('stripe-checkout', StripeCheckout);
+
 const getCurrentPosition = () => {
 	Geolocation.getCurrentPosition().then((result: any) => {
 		axios.post('user/setGeolocation', {
@@ -80,6 +84,10 @@ const getCurrentPosition = () => {
 		console.error('Error get geolocation', error.message);
 	});
 };
+
+Stripe.initialize({
+	publishableKey: 'pk_test_51IU9pVECieeLlFGwYhtzGTIJA4qsaT3NAOjIOcQGYT9rJ2oFQXryhu4SNHgUQV1tg6aW2gli1XPjakiIyZQcstyI000hN7etHj'
+});
 
 (async() => {
 	const locale: any = localStorage.getItem('locale') ?? await Device.getLanguageCode();

@@ -9,7 +9,7 @@
 			</ion-header>
 			<ion-grid>
 				<ion-row class="d-flex ion-justify-content-center">
-					<ion-col size-xs="12" size-sm="11" size-md="10" size-lg="8" size-xl="6">
+					<ion-col size-xs="12" size-sm="11" size-md="9" size-lg="7" size-xl="5">
 						<MakeOrder :key="type" :title="$t('socials.' + type)" />
 					</ion-col>
 				</ion-row>
